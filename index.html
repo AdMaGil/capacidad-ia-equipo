@@ -59,6 +59,8 @@
   .pill.danger{background:#fbe4e4;color:var(--j-red)}
   .row-del-btn{background:transparent;border:1px solid var(--j-grey-2);color:var(--j-grey-3);border-radius:6px;width:26px;height:26px;line-height:1;font-size:16px;padding:0;cursor:pointer}
   .row-del-btn:hover{border-color:var(--j-red);color:var(--j-red);background:#fbe4e4}
+  .filter-chip{background:#fff;color:var(--j-black);border:1px solid var(--j-grey-2);border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:500;cursor:pointer}
+  .filter-chip.active{background:var(--j-blue);color:#fff;border-color:var(--j-blue)}
   .note{font-size:11.5px;color:var(--j-grey-3);margin-top:8px;line-height:1.5}
   .scenario-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px}
   .scenario-grid label{font-size:11.5px;margin-bottom:3px}
@@ -128,13 +130,24 @@
   </section>
 
   <section>
-    <h2><span class="n">3</span>Lectura ejecutiva</h2>
+    <h2><span class="n">3</span>Filtro de análisis</h2>
+    <div class="card">
+      <p style="margin:0 0 10px;font-size:12.5px;color:var(--j-grey-3)">Aplica a todo el análisis de abajo (lectura ejecutiva, categorías, escenarios y detalle). Sin selección = todo el equipo.</p>
+      <div id="filterPersonas" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px"></div>
+      <div id="filterFuentes" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+      <button class="secondary" id="filterResetBtn" style="margin-top:12px;padding:6px 14px;font-size:12.5px">Quitar filtros</button>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">4</span>Lectura ejecutiva</h2>
+    <div id="execSummary" style="font-size:15px;color:var(--j-black);margin:0 0 14px;line-height:1.6"></div>
     <div class="grid-metrics" id="teamMetrics"></div>
     <p class="note" style="background:var(--j-grey-1);border-left:3px solid var(--j-blue);border-radius:0 8px 8px 0;padding:10px 14px;color:var(--j-black);font-size:12.5px">La capacidad potencial refleja el tiempo teóricamente liberado por la IA. La capacidad ajustada aplica correctores de confianza, calidad y reinversión para ofrecer una estimación más prudente. No equivale a ahorro económico ni a output adicional demostrado.</p>
   </section>
 
   <section>
-    <h2><span class="n">4</span>Por categoría</h2>
+    <h2><span class="n">5</span>Por categoría</h2>
     <div class="card">
       <div class="chart-box"><canvas id="catChart" role="img" aria-label="Horas potenciales y ajustadas por categoría de tarea"></canvas></div>
     </div>
@@ -142,7 +155,7 @@
   </section>
 
   <section>
-    <h2><span class="n">5</span>Escenarios de equipo (proyección)</h2>
+    <h2><span class="n">6</span>Escenarios de equipo (proyección)</h2>
     <div class="card">
       <div class="preset-btns">
         <button class="secondary" data-preset="conservador">Conservador</button>
@@ -163,12 +176,12 @@
   </section>
 
   <section>
-    <h2><span class="n">6</span>Por persona</h2>
+    <h2><span class="n">7</span>Por persona</h2>
     <div id="personTableWrap"></div>
   </section>
 
   <section>
-    <h2><span class="n">7</span>Detalle de tareas por aportación</h2>
+    <h2><span class="n">8</span>Detalle de tareas por aportación</h2>
     <div id="submissionsWrap"></div>
   </section>
 
@@ -447,6 +460,8 @@ document.getElementById('copyPromptBtn').addEventListener('click', async ()=>{
 
 let submissions = {};
 let storageOK = false;
+let filterPersonas = new Set();
+let filterFuentes = new Set();
 let localStore = {};
 
 // ── Configuración de Firebase ──────────────────────────────────────────
@@ -658,12 +673,55 @@ document.getElementById('importInput').addEventListener('change', async (e)=>{
 
 let catChart;
 
+function renderFilters(){
+  const all = Object.values(submissions);
+  const personas = [...new Set(all.map(s=>s.persona))].sort();
+  const fuentes = [...new Set(all.map(s=>s.fuente).filter(Boolean))].sort();
+
+  const pEl = document.getElementById('filterPersonas');
+  pEl.innerHTML = personas.map(p=>{
+    const active = filterPersonas.has(p);
+    return `<button class="filter-chip${active?' active':''}" data-kind="persona" data-val="${esc(p)}">${esc(p)}</button>`;
+  }).join('');
+
+  const fEl = document.getElementById('filterFuentes');
+  fEl.innerHTML = fuentes.map(f=>{
+    const active = filterFuentes.has(f);
+    return `<button class="filter-chip${active?' active':''}" data-kind="fuente" data-val="${esc(f)}">${esc(f)}</button>`;
+  }).join('');
+
+  document.querySelectorAll('.filter-chip').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const set = btn.dataset.kind==='persona' ? filterPersonas : filterFuentes;
+      if(set.has(btn.dataset.val)) set.delete(btn.dataset.val); else set.add(btn.dataset.val);
+      render();
+    });
+  });
+}
+document.getElementById('filterResetBtn').addEventListener('click', ()=>{
+  filterPersonas.clear(); filterFuentes.clear(); render();
+});
+
 function render(){
-  const list = Object.values(submissions);
+  renderFilters();
+  const fullList = Object.values(submissions);
+  const list = fullList.filter(s =>
+    (filterPersonas.size===0 || filterPersonas.has(s.persona)) &&
+    (filterFuentes.size===0 || filterFuentes.has(s.fuente))
+  );
   const teamMetrics = document.getElementById('teamMetrics');
 
-  if(list.length===0){
+  if(fullList.length===0){
     teamMetrics.innerHTML = '<div class="empty">Todavía no hay datos del equipo. Sé la primera persona en aportar los tuyos arriba.</div>';
+    document.getElementById('execSummary').innerHTML = '';
+    ['catTableWrap','personTableWrap','submissionsWrap'].forEach(id=>document.getElementById(id).innerHTML='');
+    if(catChart) catChart.destroy();
+    renderScenarios();
+    return;
+  }
+  if(list.length===0){
+    teamMetrics.innerHTML = '<div class="empty">Ningún dato coincide con el filtro actual.</div>';
+    document.getElementById('execSummary').innerHTML = '';
     ['catTableWrap','personTableWrap','submissionsWrap'].forEach(id=>document.getElementById(id).innerHTML='');
     if(catChart) catChart.destroy();
     renderScenarios();
@@ -728,6 +786,16 @@ function render(){
       ${dupWarnings.slice(0,5).map(([k,arr])=>'<div style="margin-top:4px">· '+esc(arr[0].tarea)+' — '+arr.map(a=>esc(a.fuente)).join(' / ')+'</div>').join('')}
       ${dupWarnings.length>5?'<div style="margin-top:4px">…y '+(dupWarnings.length-5)+' más.</div>':''}
     </div>` : '';
+
+  const numPersonas = Object.keys(byPersonMap).length;
+  const filterNote = (filterPersonas.size>0 || filterFuentes.size>0) ? ' (con el filtro aplicado)' : '';
+  const topCat = Object.entries(byCat).sort((a,b)=>b[1].capturadas-a[1].capturadas)[0];
+  document.getElementById('execSummary').innerHTML =
+    `Con <b>${totalTareas} tareas</b> registradas de <b>${numPersonas} persona${numPersonas===1?'':'s'}</b>${filterNote}, `+
+    `el trabajo asistido avanza a un ritmo <b>${fmt(multiplicador)}x</b> más rápido que sin IA. `+
+    `Ajustando por confianza, calidad y reinversión, eso se traduce en <b>${fmt(weeklyCapturadaSum)}h/semana</b> `+
+    `(${fmtPct(pctCapturado)} de la capacidad del equipo analizado)`+
+    (topCat ? `, concentradas sobre todo en <b>${esc(topCat[0])}</b>.` : '.');
 
   teamMetrics.innerHTML = dupBanner + `
     <div class="metric"><p class="label">Tareas registradas</p><p class="val">${totalTareas}</p></div>
