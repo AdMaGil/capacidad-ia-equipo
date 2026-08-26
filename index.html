@@ -57,6 +57,8 @@
   .pill{display:inline-block;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--j-grey-1);color:var(--j-grey-3);white-space:nowrap}
   .pill.warn{background:#fdf3d8;color:#7a5a00}
   .pill.danger{background:#fbe4e4;color:var(--j-red)}
+  .row-del-btn{background:transparent;border:1px solid var(--j-grey-2);color:var(--j-grey-3);border-radius:6px;width:26px;height:26px;line-height:1;font-size:16px;padding:0;cursor:pointer}
+  .row-del-btn:hover{border-color:var(--j-red);color:var(--j-red);background:#fbe4e4}
   .note{font-size:11.5px;color:var(--j-grey-3);margin-top:8px;line-height:1.5}
   .scenario-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px}
   .scenario-grid label{font-size:11.5px;margin-bottom:3px}
@@ -779,8 +781,9 @@ function render(){
     </div>`;
 
   const subDetails = list.map(sub=>{
+    const subKey = 'submission:'+slug(sub.employee_id||sub.persona)+':'+slug(sub.fuente||'otro')+':'+slug((sub.fecha_inicio||'na')+'_'+(sub.fecha_fin||'na'));
     const rows = (sub.tareas||[]).map(t=>`
-      <tr>
+      <tr data-sub-key="${esc(subKey)}" data-task-id="${esc(t.task_id)}">
         <td>${esc(t.tarea)}</td>
         <td>${esc(t.categoria)}</td>
         <td>${esc(t.complejidad)}</td>
@@ -789,20 +792,52 @@ function render(){
         <td style="text-align:right">${fmt(t.horas_brutas)}</td>
         <td style="text-align:right;font-weight:600">${fmt(t.horas_capturadas)}</td>
         <td>${t.anomalia?'<span class="pill danger">IA&gt;manual</span>':''}${t.isControl?' <span class="pill">control (sin IA)</span>':''}${t.usedDefaults?' <span class="pill warn">factores por defecto</span>':''}</td>
+        <td><button class="row-del-btn" data-sub-key="${esc(subKey)}" data-task-id="${esc(t.task_id)}" title="Borrar esta tarea" aria-label="Borrar esta tarea">×</button></td>
       </tr>`).join('');
     const cob = sub.cobertura;
     const cobLine = cob ? `<p class="note" style="margin:0 0 10px">Cobertura declarada: ${esc(cob.periodo_cubierto||'—')}${cob.num_conversaciones_revisadas!=null?' · '+esc(cob.num_conversaciones_revisadas)+' conversaciones revisadas':''}${cob.tipo_acceso?' · acceso: '+esc(cob.tipo_acceso):''}${cob.lagunas?' · lagunas: '+esc(cob.lagunas):''}</p>` : '';
     return `
       <details>
-        <summary>${esc(sub.persona)} <span style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill">${esc(sub.fuente||'sin fuente')}</span>${sub.seniority?'<span class="pill">'+esc(sub.seniority)+'</span>':''}<span class="pill">${(sub.tareas||[]).length} tareas</span></span></summary>
+        <summary>${esc(sub.persona)} <span style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span class="pill">${esc(sub.fuente||'sin fuente')}</span>${sub.seniority?'<span class="pill">'+esc(sub.seniority)+'</span>':''}<span class="pill">${(sub.tareas||[]).length} tareas</span>${sub.enviado_el?'<span class="pill">actualizado '+esc(new Date(sub.enviado_el).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}))+'</span>':''}
+          <button class="sub-del-btn" data-sub-key="${esc(subKey)}" data-sub-label="${esc(sub.persona+' — '+(sub.fuente||''))}" style="border:1px solid var(--j-red);color:var(--j-red);padding:3px 10px;font-size:11px;border-radius:20px;background:transparent;cursor:pointer">Borrar esta aportación</button>
+        </span></summary>
         <div class="details-body">
           ${cobLine}
-          <table><thead><tr><th>Tarea</th><th>Categoría</th><th>Complejidad</th><th style="text-align:right">H manual</th><th style="text-align:right">H IA</th><th style="text-align:right">H potenciales</th><th style="text-align:right">H ajustadas</th><th>Avisos</th></tr></thead>
+          <table><thead><tr><th>Tarea</th><th>Categoría</th><th>Complejidad</th><th style="text-align:right">H manual</th><th style="text-align:right">H IA</th><th style="text-align:right">H potenciales</th><th style="text-align:right">H ajustadas</th><th>Avisos</th><th></th></tr></thead>
           <tbody>${rows}</tbody></table>
         </div>
       </details>`;
   }).join('<div style="height:10px"></div>');
   document.getElementById('submissionsWrap').innerHTML = subDetails;
+
+  document.querySelectorAll('.row-del-btn').forEach(btn=>{
+    btn.addEventListener('click', async (e)=>{
+      e.preventDefault();
+      const subKey = btn.dataset.subKey, taskId = btn.dataset.taskId;
+      const sub = submissions[subKey] || localStore[subKey];
+      if(!sub) return;
+      const t = (sub.tareas||[]).find(x=>x.task_id===taskId);
+      if(!confirm('¿Borrar la tarea "'+(t?t.tarea:taskId)+'"? Esta acción no se puede deshacer.')) return;
+      const updated = {...sub, tareas:(sub.tareas||[]).filter(x=>x.task_id!==taskId), enviado_el: new Date().toISOString()};
+      try{
+        if(db && storageOK) await db.ref('submissions/'+subKey).set(updated);
+        else { localStore[subKey] = updated; submissions = {...submissions, [subKey]: updated}; render(); }
+      }catch(err){ alert('No se ha podido borrar: '+err.message); }
+    });
+  });
+
+  document.querySelectorAll('.sub-del-btn').forEach(btn=>{
+    btn.addEventListener('click', async (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      const subKey = btn.dataset.subKey;
+      if(!confirm('¿Borrar TODA la aportación de "'+btn.dataset.subLabel+'" ('+((submissions[subKey]||{}).tareas||[]).length+' tareas)? Esta acción no se puede deshacer.')) return;
+      try{
+        if(db && storageOK) await db.ref('submissions/'+subKey).remove();
+        else { delete localStore[subKey]; submissions = {...submissions}; delete submissions[subKey]; render(); }
+      }catch(err){ alert('No se ha podido borrar: '+err.message); }
+    });
+  });
 
   renderScenarios();
 }
