@@ -10,6 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <style>
   :root{
     --j-blue:#040066; --j-red:#f00a0a; --j-white:#ffffff; --j-black:#0c0c0c;
@@ -69,12 +70,30 @@
 </style>
 </head>
 <body>
+<div id="loginScreen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Raleway',sans-serif;background:#f5f5f5">
+  <div style="background:#fff;border:1px solid #e4e4e4;border-radius:10px;padding:32px;max-width:360px;width:90%;text-align:center">
+    <p style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#f00a0a;font-weight:700;margin:0 0 6px">Digital &amp; Media · JAKALA</p>
+    <h1 style="font-family:'Merriweather',serif;font-size:20px;color:#040066;margin:0 0 20px">Capacidad incremental con IA</h1>
+    <input type="email" id="loginEmail" placeholder="Email" style="width:100%;padding:10px 12px;border:1px solid #e4e4e4;border-radius:8px;margin-bottom:10px;font-family:inherit;font-size:14px;box-sizing:border-box">
+    <input type="password" id="loginPassword" placeholder="Contraseña" style="width:100%;padding:10px 12px;border:1px solid #e4e4e4;border-radius:8px;margin-bottom:14px;font-family:inherit;font-size:14px;box-sizing:border-box">
+    <button id="loginBtn" style="width:100%;background:#040066;color:#fff;border:none;border-radius:8px;padding:11px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">Iniciar sesión</button>
+    <p id="loginMsg" style="font-size:13px;color:#f00a0a;margin:12px 0 0;min-height:16px"></p>
+    <p style="font-size:12px;color:#8b8b93;margin:14px 0 0">Acceso restringido — contacta con Fito si necesitas una cuenta.</p>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none">
 <div class="wrap">
 
   <header>
     <p class="eyebrow">Digital &amp; Media · JAKALA</p>
-    <h1>Capacidad incremental con IA</h1>
-    <p class="sub">Modelo de tareas (no sesiones): separa capacidad potencial de capacidad ajustada, con factores de confianza, calidad y reinversión.</p>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+      <div>
+        <h1>Capacidad incremental con IA</h1>
+        <p class="sub">Modelo de tareas (no sesiones): separa capacidad potencial de capacidad ajustada, con factores de confianza, calidad y reinversión.</p>
+      </div>
+      <button class="secondary" id="logoutBtn" style="white-space:nowrap;padding:8px 16px;font-size:12.5px">Cerrar sesión</button>
+    </div>
   </header>
 
   <div id="storageBanner"></div>
@@ -185,6 +204,7 @@
     <div id="submissionsWrap"></div>
   </section>
 
+</div>
 </div>
 
 <script>
@@ -477,12 +497,52 @@ const firebaseConfig = {
   appId: "1:968616218941:web:757ceceb31c5921cff7554"
 };
 let db = null;
+let auth = null;
 try{
   if(firebaseConfig.apiKey !== 'TU_API_KEY'){
     firebase.initializeApp(firebaseConfig);
     db = firebase.database();
+    auth = firebase.auth();
   }
-}catch(e){ db = null; }
+}catch(e){ db = null; auth = null; }
+// ─────────────────────────────────────────────────────────────────────
+
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('loginPassword').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const msgEl = document.getElementById('loginMsg');
+  msgEl.textContent = '';
+  if(!auth){ msgEl.textContent = 'Login no configurado todavía.'; return; }
+  if(!email || !password){ msgEl.textContent = 'Introduce email y contraseña.'; return; }
+  auth.signInWithEmailAndPassword(email, password).catch(err=>{
+    msgEl.textContent = 'Email o contraseña incorrectos.';
+  });
+}
+
+document.getElementById('logoutBtn').addEventListener('click', ()=>{
+  if(auth) auth.signOut();
+});
+
+if(auth){
+  auth.onAuthStateChanged(user=>{
+    if(user){
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('appRoot').style.display = 'block';
+      loadAll();
+    } else {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('appRoot').style.display = 'none';
+    }
+  });
+} else {
+  // Sin Firebase Auth configurado: no bloquea el acceso (modo desarrollo/local).
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appRoot').style.display = 'block';
+  loadAll();
+}
 // ─────────────────────────────────────────────────────────────────────
 
 async function loadAll(){
@@ -953,8 +1013,6 @@ function renderScenarios(){
     <div class="metric"><p class="label">% capacidad equipo</p><p class="val">${fmtPct(pctCapacidad)}</p></div>
   `;
 }
-
-loadAll();
 </script>
 </body>
 </html>
