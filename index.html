@@ -160,6 +160,7 @@
 
   <section>
     <h2><span class="n">4</span>Lectura ejecutiva</h2>
+    <p style="font-size:12px;color:var(--j-grey-3);margin:0 0 14px;line-height:1.5">Referencia externa: a nivel de compañía, JAKALA + Claude reporta ciclos de optimización de campaña de 5-7 días a &lt;24h y ~70% del tiempo senior redirigido de trabajo sistemático a trabajo de mayor criterio (<a href="https://claude.com/customers/jakala" target="_blank" rel="noopener" style="color:var(--j-blue)">caso publicado en claude.com/customers/jakala</a>). Este dashboard mide si esa proporción se sostiene a nivel de tarea individual en Digital &amp; Media.</p>
     <div id="execSummary" style="font-size:15px;color:var(--j-black);margin:0 0 14px;line-height:1.6"></div>
     <div class="grid-metrics" id="teamMetrics"></div>
     <p class="note" style="background:var(--j-grey-1);border-left:3px solid var(--j-blue);border-radius:0 8px 8px 0;padding:10px 14px;color:var(--j-black);font-size:12.5px">La capacidad potencial refleja el tiempo teóricamente liberado por la IA. La capacidad ajustada aplica correctores de confianza, calidad y reinversión para ofrecer una estimación más prudente. No equivale a ahorro económico ni a output adicional demostrado.</p>
@@ -174,7 +175,49 @@
   </section>
 
   <section>
-    <h2><span class="n">6</span>Escenarios de equipo (proyección)</h2>
+    <h2><span class="n">6</span>Automatizaciones activas (ahorro recurrente)</h2>
+    <div class="card">
+      <p style="margin:0 0 14px;font-size:13px;color:var(--j-grey-3)">Distinto de las tareas de arriba: aquí no se registra el esfuerzo de <em>construir</em> una automatización (eso ya cuenta como tarea de build), sino el tiempo que esa automatización sigue ahorrando <b>cada semana desde que está en marcha</b>, sin que nadie tenga que reportarlo — se acumula solo con el paso del tiempo.</p>
+      <div class="row">
+        <div><label>Nombre</label><input type="text" id="autoNombre" placeholder="Automatización informes Italfarmaco"></div>
+        <div>
+          <label>Categoría</label>
+          <select id="autoCategoria">
+            <option>Automatización/Script</option>
+            <option>Herramientas y dashboards HTML/web</option>
+            <option>Excel/hojas de cálculo</option>
+            <option>Informe/Documento</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div>
+          <label>Estado</label>
+          <select id="autoEstado">
+            <option value="activa">Activa</option>
+            <option value="en_desarrollo">En desarrollo (aún no cuenta)</option>
+            <option value="pausada">Pausada</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div><label>Fecha de puesta en marcha</label><input type="date" id="autoFecha"></div>
+        <div><label>H manuales/semana antes (sin la automatización)</label><input type="number" id="autoManual" min="0" step="0.25" placeholder="3.5"></div>
+        <div><label>H mantenimiento/semana ahora</label><input type="number" id="autoMantenimiento" min="0" step="0.25" placeholder="0.25"></div>
+        <div><label>Confianza en la estimación previa (0-1)</label><input type="number" id="autoConfianza" min="0" max="1" step="0.05" placeholder="0.75"></div>
+      </div>
+      <label>Descripción</label>
+      <textarea id="autoDescripcion" style="min-height:60px" placeholder="Qué proceso manual sustituye y desde cuándo."></textarea>
+      <div style="margin-top:12px"><button id="autoSubmitBtn">Registrar automatización</button></div>
+      <div id="autoMsg"></div>
+
+      <div class="grid-metrics" id="autoMetrics" style="margin-top:20px"></div>
+      <div id="autoTableWrap" style="margin-top:14px"></div>
+      <p class="note">El ahorro semanal se pondera por el factor de confianza que indiques. Solo las automatizaciones en estado "Activa" con fecha de puesta en marcha cuentan para el acumulado.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">7</span>Escenarios de equipo (proyección)</h2>
     <div class="card">
       <div class="preset-btns">
         <button class="secondary" data-preset="conservador">Conservador</button>
@@ -195,12 +238,12 @@
   </section>
 
   <section>
-    <h2><span class="n">7</span>Por persona</h2>
+    <h2><span class="n">8</span>Por persona</h2>
     <div id="personTableWrap"></div>
   </section>
 
   <section>
-    <h2><span class="n">8</span>Detalle de tareas por aportación</h2>
+    <h2><span class="n">9</span>Detalle de tareas por aportación</h2>
     <div id="submissionsWrap"></div>
   </section>
 
@@ -483,6 +526,8 @@ let storageOK = false;
 let filterPersonas = new Set();
 let filterFuentes = new Set();
 let localStore = {};
+let automatizaciones = {};
+let localAutoStore = {};
 
 // ── Configuración de Firebase ──────────────────────────────────────────
 // Rellena con los datos de tu proyecto (ver instrucciones de despliegue).
@@ -560,11 +605,16 @@ async function loadAll(){
         renderStorageBanner();
         render();
       });
+      db.ref('automatizaciones').on('value', snap=>{
+        automatizaciones = snap.val() || {};
+        render();
+      }, err=>{ automatizaciones = {...localAutoStore}; render(); });
       return;
     }catch(e){ storageOK = false; }
   }
   storageOK = false;
   submissions = {...localStore};
+  automatizaciones = {...localAutoStore};
   renderStorageBanner();
   render();
 }
@@ -731,6 +781,103 @@ document.getElementById('importInput').addEventListener('change', async (e)=>{
   e.target.value = '';
 });
 
+function slugify(s){ return slug(s); }
+
+document.getElementById('autoSubmitBtn').addEventListener('click', async ()=>{
+  const msgEl = document.getElementById('autoMsg');
+  msgEl.innerHTML = '';
+  const persona = document.getElementById('personaInput').value.trim();
+  const employeeIdRaw = document.getElementById('employeeIdInput').value.trim();
+  const nombre = document.getElementById('autoNombre').value.trim();
+  const categoria = document.getElementById('autoCategoria').value;
+  const estado = document.getElementById('autoEstado').value;
+  const fecha = document.getElementById('autoFecha').value || null;
+  const manual = parseFloat(document.getElementById('autoManual').value);
+  const mant = parseFloat(document.getElementById('autoMantenimiento').value) || 0;
+  const conf = clamp01(document.getElementById('autoConfianza').value);
+  const desc = document.getElementById('autoDescripcion').value.trim();
+
+  if(!persona){ msgEl.innerHTML = '<div class="msg err">Indica tu nombre en la sección 2 primero.</div>'; return; }
+  if(!nombre){ msgEl.innerHTML = '<div class="msg err">Indica un nombre para la automatización.</div>'; return; }
+  if(isNaN(manual) || manual<0){ msgEl.innerHTML = '<div class="msg err">Indica las horas manuales/semana previas (≥0).</div>'; return; }
+
+  const employeeSlug = slug(employeeIdRaw || persona);
+  const autoId = employeeSlug+'-auto-'+slug(nombre)+'-'+Date.now();
+  const obj = {
+    automatizacion_id: autoId, persona, employee_id: employeeIdRaw || slug(persona),
+    nombre, categoria, estado, fecha_puesta_en_marcha: fecha,
+    horas_manuales_semanales_previas: manual, horas_mantenimiento_semanales: mant,
+    confidence_factor: conf===null ? 0.6 : conf, descripcion: desc,
+    enviado_el: new Date().toISOString()
+  };
+
+  try{
+    if(db && storageOK){ await db.ref('automatizaciones/'+autoId).set(obj); }
+    else{ localAutoStore[autoId] = obj; automatizaciones = {...automatizaciones, [autoId]: obj}; render(); }
+    msgEl.innerHTML = '<div class="msg ok">Automatización registrada.</div>';
+    ['autoNombre','autoFecha','autoManual','autoMantenimiento','autoConfianza','autoDescripcion'].forEach(id=>document.getElementById(id).value='');
+  }catch(e){ msgEl.innerHTML = '<div class="msg err">Error guardando: '+esc(e.message)+'</div>'; }
+});
+
+function renderAutomatizaciones(list){
+  const hoy = new Date();
+  const rows = [];
+  let weeklyTotal = 0, cumTotal = 0;
+  list.forEach(a=>{
+    const cf = a.confidence_factor ?? 0.6;
+    const ahorroSemanal = Math.max(0, (a.horas_manuales_semanales_previas||0) - (a.horas_mantenimiento_semanales||0)) * cf;
+    let semanas = 0, acumulado = 0;
+    if(a.estado==='activa' && a.fecha_puesta_en_marcha){
+      const dias = (hoy - new Date(a.fecha_puesta_en_marcha))/(1000*60*60*24);
+      semanas = Math.max(0, dias/7);
+      acumulado = ahorroSemanal*semanas;
+      weeklyTotal += ahorroSemanal;
+      cumTotal += acumulado;
+    }
+    rows.push({...a, ahorroSemanal, semanas, acumulado});
+  });
+
+  document.getElementById('autoMetrics').innerHTML = `
+    <div class="metric"><p class="label">Automatizaciones activas</p><p class="val">${rows.filter(r=>r.estado==='activa').length}</p></div>
+    <div class="metric"><p class="label">Ahorro recurrente/semana</p><p class="val">${fmt(weeklyTotal)}h</p></div>
+    <div class="metric"><p class="label">Ahorro acumulado a hoy</p><p class="val">${fmt(cumTotal)}h</p></div>
+  `;
+
+  if(rows.length===0){
+    document.getElementById('autoTableWrap').innerHTML = '<p class="empty">Aún no hay automatizaciones registradas.</p>';
+    return;
+  }
+
+  const statusLabel = {activa:'Activa', en_desarrollo:'En desarrollo', pausada:'Pausada'};
+  const tableRows = rows.sort((a,b)=>b.acumulado-a.acumulado).map(r=>`
+    <tr>
+      <td>${esc(r.nombre)}</td>
+      <td>${esc(r.persona)}</td>
+      <td>${esc(r.categoria)}</td>
+      <td>${r.estado==='activa'?'<span class="pill" style="background:#e4f5e4;color:#1a6b1a">Activa</span>':r.estado==='pausada'?'<span class="pill danger">Pausada</span>':'<span class="pill warn">'+esc(statusLabel[r.estado]||r.estado)+'</span>'}</td>
+      <td style="text-align:right">${fmt(r.ahorroSemanal)}h</td>
+      <td style="text-align:right">${fmt(r.semanas,1)}</td>
+      <td style="text-align:right;font-weight:600">${fmt(r.acumulado)}h</td>
+      <td><button class="row-del-btn" data-auto-id="${esc(r.automatizacion_id)}" title="Borrar" aria-label="Borrar">×</button></td>
+    </tr>`).join('');
+  document.getElementById('autoTableWrap').innerHTML = `
+    <table><thead><tr><th>Automatización</th><th>Persona</th><th>Categoría</th><th>Estado</th><th style="text-align:right">Ahorro/sem</th><th style="text-align:right">Semanas activa</th><th style="text-align:right">Acumulado</th><th></th></tr></thead>
+    <tbody>${tableRows}</tbody></table>`;
+
+  document.querySelectorAll('#autoTableWrap .row-del-btn').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      if(!confirm('¿Borrar esta automatización del registro?')) return;
+      const id = btn.dataset.autoId;
+      try{
+        if(db && storageOK) await db.ref('automatizaciones/'+id).remove();
+        else{ delete localAutoStore[id]; automatizaciones = {...automatizaciones}; delete automatizaciones[id]; render(); }
+      }catch(e){ alert('No se ha podido borrar: '+e.message); }
+    });
+  });
+
+  return {weeklyTotal, cumTotal};
+}
+
 let catChart;
 
 function renderFilters(){
@@ -770,6 +917,11 @@ function render(){
     (filterFuentes.size===0 || filterFuentes.has(s.fuente))
   );
   const teamMetrics = document.getElementById('teamMetrics');
+
+  const autoList = Object.values(automatizaciones).filter(a =>
+    (filterPersonas.size===0 || filterPersonas.has(a.persona))
+  );
+  const autoTotals = renderAutomatizaciones(autoList) || {weeklyTotal:0, cumTotal:0};
 
   if(fullList.length===0){
     teamMetrics.innerHTML = '<div class="empty">Todavía no hay datos del equipo. Sé la primera persona en aportar los tuyos arriba.</div>';
@@ -850,19 +1002,23 @@ function render(){
   const numPersonas = Object.keys(byPersonMap).length;
   const filterNote = (filterPersonas.size>0 || filterFuentes.size>0) ? ' (con el filtro aplicado)' : '';
   const topCat = Object.entries(byCat).sort((a,b)=>b[1].capturadas-a[1].capturadas)[0];
+  const autoNote = autoTotals.weeklyTotal>0
+    ? ` A eso se suman <b>${fmt(autoTotals.weeklyTotal)}h/semana</b> recurrentes de automatizaciones ya activas (${fmt(autoTotals.cumTotal)}h acumuladas desde su puesta en marcha), que no dependen de que nadie siga usando IA para generarlas.`
+    : '';
   document.getElementById('execSummary').innerHTML =
     `Con <b>${totalTareas} tareas</b> registradas de <b>${numPersonas} persona${numPersonas===1?'':'s'}</b>${filterNote}, `+
     `el trabajo asistido avanza a un ritmo <b>${fmt(multiplicador)}x</b> más rápido que sin IA. `+
     `Ajustando por confianza, calidad y reinversión, eso se traduce en <b>${fmt(weeklyCapturadaSum)}h/semana</b> `+
     `(${fmtPct(pctCapturado)} de la capacidad del equipo analizado)`+
-    (topCat ? `, concentradas sobre todo en <b>${esc(topCat[0])}</b>.` : '.');
+    (topCat ? `, concentradas sobre todo en <b>${esc(topCat[0])}</b>.` : '.') + autoNote;
 
   teamMetrics.innerHTML = dupBanner + `
     <div class="metric"><p class="label">Tareas registradas</p><p class="val">${totalTareas}</p></div>
     <div class="metric"><p class="label">Multiplicador (tareas asistidas)</p><p class="val">${fmt(multiplicador)}x</p></div>
     <div class="metric"><p class="label">H potenciales totales</p><p class="val">${fmt(totalBrutas)}</p></div>
     <div class="metric"><p class="label">H ajustadas totales</p><p class="val">${fmt(totalCapturadas)}</p></div>
-    <div class="metric"><p class="label">Ajustada/sem equipo</p><p class="val">${fmt(weeklyCapturadaSum)}h <span class="val sub2">(${fmtPct(pctCapturado)} de ${fmt(capacidadEquipo,0)}h)</span></p></div>
+    <div class="metric"><p class="label">Ajustada/sem equipo (tareas)</p><p class="val">${fmt(weeklyCapturadaSum)}h <span class="val sub2">(${fmtPct(pctCapturado)} de ${fmt(capacidadEquipo,0)}h)</span></p></div>
+    <div class="metric"><p class="label">+ Recurrente/sem (automatizaciones)</p><p class="val">${fmt(autoTotals.weeklyTotal)}h</p></div>
   `;
 
   const catRows = Object.entries(byCat).sort((a,b)=>b[1].capturadas-a[1].capturadas).map(([cat,d])=>`
