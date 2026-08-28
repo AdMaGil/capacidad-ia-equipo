@@ -16,6 +16,7 @@
     --j-blue:#040066; --j-red:#f00a0a; --j-white:#ffffff; --j-black:#0c0c0c;
     --j-grey-1:#f5f5f5; --j-grey-2:#e4e4e4; --j-grey-3:#8b8b93;
     --surface:#ffffff; --page:#f5f5f5;
+    --green:#1a6b1a; --green-bg:#e4f5e4; --amber:#7a5a00; --amber-bg:#fdf3d8;
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:'Raleway',sans-serif;background:var(--page);color:var(--j-black);line-height:1.5}
@@ -34,14 +35,17 @@
   .metric .val{font-size:23px;font-weight:700;color:var(--j-blue);margin:0}
   .metric .val.sub2{font-size:15px;color:var(--j-grey-3);font-weight:500}
   textarea{width:100%;min-height:130px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;padding:12px;border:1px solid var(--j-grey-2);border-radius:8px;resize:vertical;background:#fbfbfa}
-  input[type=text],input[type=number],select{width:100%;padding:9px 11px;border:1px solid var(--j-grey-2);border-radius:8px;font-family:inherit;font-size:14px;background:#fff}
+  input[type=text],input[type=number],input[type=date],input[type=email],input[type=password],select{width:100%;padding:9px 11px;border:1px solid var(--j-grey-2);border-radius:8px;font-family:inherit;font-size:14px;background:#fff}
   label{font-size:13px;font-weight:600;color:var(--j-black);display:block;margin-bottom:5px}
   .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
   .row>div{flex:1;min-width:150px}
   button{background:var(--j-blue);color:#fff;border:none;border-radius:8px;padding:11px 20px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer}
   button:hover{background:#03004d}
   button:active{transform:scale(.98)}
+  button:disabled{opacity:.45;cursor:not-allowed}
   button.secondary{background:transparent;color:var(--j-blue);border:1px solid var(--j-blue)}
+  button.source-btn{background:#fff;color:var(--j-black);border:1px solid var(--j-grey-2);padding:14px;text-align:left;font-weight:600}
+  button.source-btn.active{background:var(--j-blue);color:#fff;border-color:var(--j-blue)}
   .msg{font-size:13px;margin-top:10px;padding:9px 12px;border-radius:6px}
   .msg.ok{background:#e4f5e4;color:#1a6b1a}
   .msg.err{background:#fbe4e4;color:var(--j-red)}
@@ -56,8 +60,9 @@
   summary::-webkit-details-marker{display:none}
   .details-body{padding:0 18px 18px;overflow-x:auto}
   .pill{display:inline-block;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--j-grey-1);color:var(--j-grey-3);white-space:nowrap}
-  .pill.warn{background:#fdf3d8;color:#7a5a00}
+  .pill.warn{background:var(--amber-bg);color:var(--amber)}
   .pill.danger{background:#fbe4e4;color:var(--j-red)}
+  .pill.ok{background:var(--green-bg);color:var(--green)}
   .row-del-btn{background:transparent;border:1px solid var(--j-grey-2);color:var(--j-grey-3);border-radius:6px;width:26px;height:26px;line-height:1;font-size:16px;padding:0;cursor:pointer}
   .row-del-btn:hover{border-color:var(--j-red);color:var(--j-red);background:#fbe4e4}
   .filter-chip{background:#fff;color:var(--j-black);border:1px solid var(--j-grey-2);border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:500;cursor:pointer}
@@ -67,6 +72,20 @@
   .scenario-grid label{font-size:11.5px;margin-bottom:3px}
   .preset-btns{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
   .preset-btns button{padding:7px 14px;font-size:12.5px}
+  .profile-card{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;background:var(--j-grey-1);border-radius:10px;padding:16px 18px}
+  .profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;flex:1;min-width:260px}
+  .profile-grid .f{font-size:11px;color:var(--j-grey-3);margin:0 0 2px}
+  .profile-grid .v{font-size:14px;font-weight:600;margin:0}
+  .source-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+  .tier-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+  .tier-verde{background:var(--green-bg);color:var(--green)}
+  .tier-ambar{background:var(--amber-bg);color:var(--amber)}
+  .tier-rojo{background:#fbe4e4;color:var(--j-red)}
+  .review-row{border:1px solid var(--j-grey-2);border-radius:8px;padding:12px 14px;margin-bottom:8px}
+  .review-row.rojo{border-color:#f3a3a3}
+  .review-row.ambar{border-color:#e8c96b}
+  .search-result{padding:10px 12px;border:1px solid var(--j-grey-2);border-radius:8px;margin-bottom:6px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+  .search-result:hover{border-color:var(--j-blue);background:#f5f7ff}
 </style>
 </head>
 <body>
@@ -98,60 +117,59 @@
 
   <div id="storageBanner"></div>
 
-  <section>
-    <h2><span class="n">1</span>Instrucciones para el equipo</h2>
-    <div class="card">
-      <p style="margin:0 0 12px;font-size:13.5px">Cada persona lanza este prompt en su propia IA (Claude, ChatGPT...), copia el JSON que devuelve y lo pega en la sección "Aportar mis datos" de abajo. El esquema es el mismo para cualquier IA — así los datos son comparables entre fuentes.</p>
-      <details id="promptDetails">
-        <summary>Ver / copiar el prompt <span class="pill">clic para desplegar</span></summary>
-        <div class="details-body">
-          <textarea id="promptText" readonly style="min-height:340px;font-size:11.5px"></textarea>
-          <div style="margin-top:10px">
-            <button class="secondary" id="copyPromptBtn">Copiar prompt</button>
-          </div>
-        </div>
-      </details>
-      <p class="note">Escala de factores del prompt: <b>confidence_factor</b> 1.00 medido / 0.75 comparable observable / 0.50 solo conversación / 0.25 información limitada / 0.00 imposible. <b>quality_use_factor</b> 1.00 usado y validado / 0.90 con correcciones menores / 0.50 uso parcial / 0.00 descartado. <b>capture_factor</b> 1.00 con evidencia explícita de reinversión / 0.50 potencial sin evidencia / 0.00 sin resultado útil. Si una tarea no trae estos campos, el artifact aplica valores conservadores por defecto y lo marca en el detalle.</p>
-    </div>
+  <section id="profileSection">
+    <h2><span class="n">1</span>Tu perfil</h2>
+    <div id="profileWrap"></div>
   </section>
 
-  <section>
+  <section id="contributeSection" style="display:none">
     <h2><span class="n">2</span>Aportar mis datos</h2>
     <div class="card">
       <div class="row">
-        <div><label>Tu nombre</label><input type="text" id="personaInput" placeholder="Nombre Apellido"></div>
-        <div><label>ID empleado (opcional, evita duplicados)</label><input type="text" id="employeeIdInput" placeholder="AMG001"></div>
-        <div>
-          <label>Fuente</label>
-          <select id="fuenteInput">
-            <option value="Claude personal">Claude personal</option>
-            <option value="Claude corporativo">Claude corporativo</option>
-            <option value="OpenAI / ChatGPT">OpenAI / ChatGPT</option>
-            <option value="Otro">Otro</option>
-          </select>
+        <div><label>Periodo del análisis</label>
+          <div style="display:flex;gap:8px">
+            <input type="date" id="periodoInicio">
+            <input type="date" id="periodoFin">
+          </div>
         </div>
+        <div><label>Capacidad semanal (h)</label><input type="number" id="capacidadInput" value="37.5" min="1" step="0.5"></div>
       </div>
-      <label>JSON de tareas (esquema tareas[], ver prompt)</label>
-      <textarea id="jsonInput" placeholder='{"persona":"...", "employee_id":"...", "fecha_inicio":"2026-06-01", "fecha_fin":"2026-08-26", "capacidad_semanal":37.5, "tareas":[...]}'></textarea>
-      <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <button id="submitBtn">Enviar mis datos</button>
-        <button class="secondary" id="clearMineBtn">Borrar mis datos</button>
-        <span style="width:1px;height:24px;background:var(--j-grey-2)"></span>
-        <button class="secondary" id="exportBtn">Exportar todos los datos</button>
-        <label class="secondary" style="border:1px solid var(--j-blue);color:var(--j-blue);border-radius:8px;padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;margin:0">
-          Importar archivo
-          <input type="file" id="importInput" accept="application/json" style="display:none">
-        </label>
+      <div id="semanasWrap"></div>
+
+      <label style="margin-top:6px">1. Elige la herramienta desde la que vas a aportar datos</label>
+      <div class="source-grid" id="sourceGrid"></div>
+
+      <div id="promptWrap" style="display:none">
+        <label>2. Copia tu prompt personalizado</label>
+        <textarea id="promptText" readonly style="min-height:280px;font-size:11.5px"></textarea>
+        <div style="margin-top:10px"><button class="secondary" id="copyPromptBtn">Copiar prompt</button></div>
+
+        <label style="margin-top:18px">3. Pega aquí el JSON que te devuelva</label>
+        <textarea id="jsonInput" placeholder='{"schema_version":"2.1","cobertura":{...},"tareas":[...]}'></textarea>
+        <div style="margin-top:12px"><button id="parseJsonBtn">Revisar tareas</button></div>
       </div>
       <div id="submitMsg"></div>
-      <p class="note">Los envíos se fusionan por <code>task_id</code> dentro de la misma persona+fuente+periodo: reenviar no duplica tareas ya registradas, solo actualiza las que cambien. Si una tarea no trae factores de confianza/calidad/captura, se le aplican valores conservadores por defecto (marcados en el detalle).</p>
+    </div>
+  </section>
+
+  <section id="reviewSection" style="display:none">
+    <h2><span class="n">3</span>Revisión antes de enviar</h2>
+    <div class="card">
+      <div id="reviewSummary" style="margin-bottom:14px"></div>
+      <div id="reviewGreenBlock" style="margin-bottom:16px"></div>
+      <div id="reviewIssuesBlock"></div>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        <button id="finalSubmitBtn">4. Enviar</button>
+        <button class="secondary" id="cancelReviewBtn">Cancelar</button>
+      </div>
+      <div id="finalMsg"></div>
     </div>
   </section>
 
   <section>
-    <h2><span class="n">3</span>Filtro de análisis</h2>
+    <h2><span class="n">4</span>Filtro de análisis</h2>
     <div class="card">
-      <p style="margin:0 0 10px;font-size:12.5px;color:var(--j-grey-3)">Aplica a todo el análisis de abajo (lectura ejecutiva, categorías, escenarios y detalle). Sin selección = todo el equipo.</p>
+      <p style="margin:0 0 10px;font-size:12.5px;color:var(--j-grey-3)">Aplica a todo el análisis de abajo. Sin selección = todo el equipo.</p>
       <div id="filterPersonas" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px"></div>
       <div id="filterFuentes" style="display:flex;flex-wrap:wrap;gap:8px"></div>
       <button class="secondary" id="filterResetBtn" style="margin-top:12px;padding:6px 14px;font-size:12.5px">Quitar filtros</button>
@@ -159,7 +177,7 @@
   </section>
 
   <section>
-    <h2><span class="n">4</span>Lectura ejecutiva</h2>
+    <h2><span class="n">5</span>Lectura ejecutiva</h2>
     <p style="font-size:12px;color:var(--j-grey-3);margin:0 0 14px;line-height:1.5">Referencia externa: a nivel de compañía, JAKALA + Claude reporta ciclos de optimización de campaña de 5-7 días a &lt;24h y ~70% del tiempo senior redirigido de trabajo sistemático a trabajo de mayor criterio (<a href="https://claude.com/customers/jakala" target="_blank" rel="noopener" style="color:var(--j-blue)">caso publicado en claude.com/customers/jakala</a>). Este dashboard mide si esa proporción se sostiene a nivel de tarea individual en Digital &amp; Media.</p>
     <div id="execSummary" style="font-size:15px;color:var(--j-black);margin:0 0 14px;line-height:1.6"></div>
     <div class="grid-metrics" id="teamMetrics"></div>
@@ -167,7 +185,7 @@
   </section>
 
   <section>
-    <h2><span class="n">5</span>Por categoría</h2>
+    <h2><span class="n">6</span>Por categoría</h2>
     <div class="card">
       <div class="chart-box"><canvas id="catChart" role="img" aria-label="Horas potenciales y ajustadas por categoría de tarea"></canvas></div>
     </div>
@@ -175,9 +193,9 @@
   </section>
 
   <section>
-    <h2><span class="n">6</span>Automatizaciones activas (ahorro recurrente)</h2>
+    <h2><span class="n">7</span>Automatizaciones activas (ahorro recurrente)</h2>
     <div class="card">
-      <p style="margin:0 0 14px;font-size:13px;color:var(--j-grey-3)">Distinto de las tareas de arriba: aquí no se registra el esfuerzo de <em>construir</em> una automatización (eso ya cuenta como tarea de build), sino el tiempo que esa automatización sigue ahorrando <b>cada semana desde que está en marcha</b>, sin que nadie tenga que reportarlo — se acumula solo con el paso del tiempo.</p>
+      <p style="margin:0 0 14px;font-size:13px;color:var(--j-grey-3)">Distinto de las tareas de arriba: aquí no se registra el esfuerzo de <em>construir</em> una automatización, sino el tiempo que sigue ahorrando <b>cada semana desde que está en marcha</b>, sin que nadie tenga que reportarlo.</p>
       <div class="row">
         <div><label>Nombre</label><input type="text" id="autoNombre" placeholder="Automatización informes Italfarmaco"></div>
         <div>
@@ -201,7 +219,7 @@
       </div>
       <div class="row">
         <div><label>Fecha de puesta en marcha</label><input type="date" id="autoFecha"></div>
-        <div><label>H manuales/semana antes (sin la automatización)</label><input type="number" id="autoManual" min="0" step="0.25" placeholder="3.5"></div>
+        <div><label>H manuales/semana antes</label><input type="number" id="autoManual" min="0" step="0.25" placeholder="3.5"></div>
         <div><label>H mantenimiento/semana ahora</label><input type="number" id="autoMantenimiento" min="0" step="0.25" placeholder="0.25"></div>
         <div><label>Confianza en la estimación previa (0-1)</label><input type="number" id="autoConfianza" min="0" max="1" step="0.05" placeholder="0.75"></div>
       </div>
@@ -212,12 +230,12 @@
 
       <div class="grid-metrics" id="autoMetrics" style="margin-top:20px"></div>
       <div id="autoTableWrap" style="margin-top:14px"></div>
-      <p class="note">El ahorro semanal se pondera por el factor de confianza que indiques. Solo las automatizaciones en estado "Activa" con fecha de puesta en marcha cuentan para el acumulado.</p>
+      <p class="note">El ahorro semanal se pondera por el factor de confianza que indiques. Solo las automatizaciones "Activa" con fecha de puesta en marcha cuentan para el acumulado.</p>
     </div>
   </section>
 
   <section>
-    <h2><span class="n">7</span>Escenarios de equipo (proyección)</h2>
+    <h2><span class="n">8</span>Escenarios de equipo (proyección)</h2>
     <div class="card">
       <div class="preset-btns">
         <button class="secondary" data-preset="conservador">Conservador</button>
@@ -233,17 +251,17 @@
         <div><label>% captura</label><input type="number" id="scCaptura" value="75" min="0" max="100" step="1"></div>
       </div>
       <div class="grid-metrics" id="scenarioMetrics"></div>
-      <p class="note">Proyección = FTE elegibles × capacidad × % tareas elegibles × % adopción × % reducción de tiempo × % captura. No equivale a reducción de plantilla — es volumen de trabajo adicional absorbible con la misma plantilla. Presentar como proyección hasta validar con datos observados.</p>
+      <p class="note">Proyección = FTE elegibles × capacidad × % tareas elegibles × % adopción × % reducción de tiempo × % captura. No equivale a reducción de plantilla — es volumen de trabajo adicional absorbible con la misma plantilla.</p>
     </div>
   </section>
 
   <section>
-    <h2><span class="n">8</span>Por persona</h2>
+    <h2><span class="n">9</span>Por persona</h2>
     <div id="personTableWrap"></div>
   </section>
 
   <section>
-    <h2><span class="n">9</span>Detalle de tareas por aportación</h2>
+    <h2><span class="n">10</span>Detalle de tareas por aportación</h2>
     <div id="submissionsWrap"></div>
   </section>
 
@@ -251,287 +269,19 @@
 </div>
 
 <script>
-const CAT_PALETTE = ['#040066','#f00a0a','#7a6ff0','#1baf7a','#eb6834','#8b8b93','#c9a227','#2a78d6'];
-const DEFAULT_FACTORS = { confidence_factor:0.6, quality_use_factor:0.85, capture_factor:0.6 };
 
+// ── Utilidades ──────────────────────────────────────────────────────────
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function slug(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
 function fmt(n,d=1){ return Number(n||0).toLocaleString('es-ES',{minimumFractionDigits:0,maximumFractionDigits:d}); }
 function fmtPct(n,d=1){ return (Number(n||0)*100).toLocaleString('es-ES',{minimumFractionDigits:0,maximumFractionDigits:d})+'%'; }
 function clamp01(n){ n=Number(n); if(isNaN(n)) return null; return Math.max(0, Math.min(1, n)); }
 function median(arr){ if(!arr.length) return 0; const s=[...arr].sort((a,b)=>a-b); const m=Math.floor(s.length/2); return s.length%2 ? s[m] : (s[m-1]+s[m])/2; }
-
-const PROMPT_TEXT = `Analiza las conversaciones profesionales de mi historial a las que realmente tengas acceso durante el periodo indicado y genera un inventario uniforme de las tareas realizadas con ayuda de IA.
-
-DATOS DEL USUARIO
-
-* employee_id: [INTRODUCIR IDENTIFICADOR]
-* persona: [NOMBRE]
-* area_rol: [ÁREA Y PUESTO]
-* fuente: [ChatGPT personal / ChatGPT corporativo / Claude personal / Claude corporativo]
-* fecha_inicio: [YYYY-MM-DD]
-* fecha_fin: [YYYY-MM-DD]
-* capacidad_semanal: 37.5
-
-OBJETIVO
-
-Identificar tareas profesionales concretas realizadas con ayuda de esta plataforma y estimar de forma prudente:
-
-* El tiempo necesario para hacer el mismo trabajo sin IA.
-* El tiempo humano total dedicado utilizando IA.
-* La confianza de la estimación.
-* La calidad y utilización real del resultado.
-* La capacidad liberada que probablemente se haya reinvertido.
-
-REGLAS DE IDENTIFICACIÓN
-
-1. Analiza exclusivamente conversaciones profesionales comprendidas entre fecha_inicio y fecha_fin.
-
-2. No incluyas conversaciones personales.
-
-3. No cuentes chats, sesiones o prompts. Cuenta tareas o entregables:
-
-   * Una conversación puede contener varias tareas: sepáralas.
-   * Una tarea puede ocupar varias conversaciones: consolídalas.
-   * Varias iteraciones del mismo documento, presentación, análisis o herramienta forman parte de una única tarea.
-   * Incluye en esa tarea todo el tiempo de revisión, corrección y retrabajo.
-
-4. Incluye únicamente tareas con actividad profesional real. Si una conversación terminó sin realizar trabajo, puedes incluirla únicamente para reflejar un intento fallido, asignando:
-
-   * horas_manual_base: 0
-   * horas_ia_total: tiempo realmente dedicado, si puede estimarse
-   * quality_use_factor: 0
-   * capture_factor: 0
-
-5. Incluye también outputs descartados, parciales o que requirieron retrabajo. No selecciones únicamente los casos exitosos.
-
-6. No inventes conversaciones, tareas, fechas, entregables ni tiempos.
-
-7. Si no puedes acceder a una parte del historial, analiza solo las conversaciones visibles. No rellenes los huecos con tareas supuestas.
-
-8. Evita duplicidades:
-
-   * No cuentes dos veces la misma tarea porque aparezca en varias conversaciones.
-   * Una automatización recurrente puede aparecer varias veces únicamente cuando existan ejecuciones reales diferentes.
-   * No conviertas una conversación de seguimiento sobre el mismo output en una tarea adicional.
-
-CATEGORÍAS PERMITIDAS
-
-Utiliza exclusivamente una de estas categorías:
-
-* Deck/PPT
-* Informe/Documento
-* Excel/hojas de cálculo
-* Herramientas y dashboards HTML/web
-* Análisis estratégico rápido
-* Código, scripts y ETL
-* Documentos de compliance/legal
-* Automatización/Script
-* Configuración/Soporte
-* Otro
-
-No inventes categorías nuevas. Utiliza "Otro" únicamente cuando ninguna de las anteriores sea adecuada.
-
-MODALIDADES PERMITIDAS
-
-Utiliza exclusivamente:
-
-* Asistencia IA
-* Automatización build
-* Automatización recurrente
-
-COMPLEJIDAD
-
-Utiliza exclusivamente:
-
-* Baja
-* Media
-* Media-Alta
-* Alta
-
-Considera el volumen del entregable, número de fuentes, investigación necesaria, cantidad de datos, iteraciones, dependencias y validaciones.
-
-HORAS MANUALES BASE
-
-horas_manual_base es el tiempo que habría necesitado un profesional competente y con un nivel similar al mío para producir un resultado equivalente sin IA.
-
-La estimación debe ser prudente y basada en el entregable realmente observado.
-
-No sumes por separado investigación, redacción, maquetación y revisión cuando ya forman parte de una misma tarea.
-
-HORAS CON IA
-
-horas_ia_total debe incluir todo el tiempo humano necesario para completar la tarea:
-
-* Preparación del contexto.
-* Búsqueda y subida de archivos.
-* Redacción de instrucciones.
-* Prompting e iteraciones.
-* Revisión humana.
-* Validación de datos y fuentes.
-* Correcciones y retrabajo.
-* Formato y preparación final.
-
-Incluye tiempos de espera únicamente cuando hayan bloqueado realmente el trabajo. No contabilices como tiempo humano los periodos en los que la IA trabajó de forma autónoma mientras la persona podía realizar otras tareas.
-
-Utiliza incrementos razonables de 0.25 horas siempre que no exista un tiempo explícito. Se permiten valores inferiores para tareas muy breves.
-
-BENCHMARK Y CONFIANZA
-
-benchmark_source debe explicar brevemente el origen de la estimación. Utiliza preferentemente:
-
-* Tiempo indicado por el usuario.
-* Tarea comparable.
-* Entregable y complejidad observados.
-* Estimación basada en la conversación.
-* Evidencia insuficiente.
-
-Asigna confidence_factor:
-
-* 1.00: tiempo medido o expresamente indicado.
-* 0.75: comparable razonable o entregable claramente observable.
-* 0.50: estimación basada únicamente en la conversación.
-* 0.25: información muy limitada.
-* 0.00: imposible de estimar.
-
-No asignes automáticamente 0.75 a todas las tareas.
-
-CALIDAD Y USO
-
-Asigna quality_use_factor:
-
-* 1.00: resultado final utilizado y validado.
-* 0.90: utilizado después de correcciones menores.
-* 0.75: utilizado con varias modificaciones.
-* 0.50: uso parcial o retrabajo importante.
-* 0.25: resultado únicamente exploratorio o de valor limitado.
-* 0.00: descartado, incorrecto o sin entregable.
-
-Si no hay evidencia de que el resultado se utilizara, no asumas automáticamente un valor de 0.90. Aplica una estimación prudente basándote en el desarrollo posterior de la conversación.
-
-CAPTURA DE CAPACIDAD
-
-Asigna capture_factor:
-
-* 1.00: existe evidencia explícita de que permitió realizar trabajo adicional, absorber backlog o reducir un plazo.
-* 0.75: el resultado fue utilizado, pero la reinversión del tiempo no está completamente trazada.
-* 0.50: existe capacidad potencial, pero no hay evidencia de reinversión.
-* 0.25: aprovechamiento muy limitado.
-* 0.00: tarea descartada o sin resultado útil.
-
-output_adicional_verificado debe ser true únicamente cuando exista evidencia explícita. En cualquier otro caso debe ser false.
-
-IDENTIFICADORES
-
-Genera task_id con esta estructura:
-
-[employee_id]-[PLATAFORMA]-[NÚMERO CORRELATIVO]
-
-Ejemplos:
-
-* AMG001-CLAUDE-001
-* AMG001-CHATGPT-001
-
-Los identificadores deben ser únicos dentro del JSON.
-
-FORMATO DE SALIDA
-
-Devuelve exclusivamente un JSON válido.
-
-No añadas explicaciones antes o después.
-
-No utilices Markdown.
-
-No encierres el JSON en un bloque de código.
-
-Utiliza exactamente esta estructura y estos nombres de campos:
-
-{
-"employee_id": "[IDENTIFICADOR]",
-"persona": "[NOMBRE]",
-"area_rol": "[ÁREA Y PUESTO]",
-"fuente": "[PLATAFORMA Y TIPO DE CUENTA]",
-"fecha_inicio": "YYYY-MM-DD",
-"fecha_fin": "YYYY-MM-DD",
-"capacidad_semanal": 37.5,
-"tareas": [
-{
-"task_id": "",
-"tarea": "",
-"categoria": "",
-"modalidad": "",
-"complejidad": "",
-"horas_manual_base": 0,
-"horas_ia_total": 0,
-"benchmark_source": "",
-"confidence_factor": 0,
-"quality_use_factor": 0,
-"capture_factor": 0,
-"output_adicional_verificado": false,
-"evidencia": "",
-"descripcion": ""
-}
-]
-}
-
-CONTENIDO DE LOS CAMPOS
-
-* tarea: nombre breve y reconocible del trabajo.
-* categoria: una de las categorías permitidas.
-* modalidad: una de las modalidades permitidas.
-* complejidad: uno de los cuatro niveles permitidos.
-* horas_manual_base: número, sin símbolos ni texto.
-* horas_ia_total: número, sin símbolos ni texto.
-* benchmark_source: explicación breve del origen del benchmark.
-* confidence_factor: número entre 0 y 1.
-* quality_use_factor: número entre 0 y 1.
-* capture_factor: número entre 0 y 1.
-* output_adicional_verificado: booleano true o false, sin comillas.
-* evidencia: referencia breve a la conversación, archivo o entregable.
-* descripcion: resumen factual del trabajo realizado, volumen, resultado e iteraciones.
-
-CONTROL FINAL OBLIGATORIO
-
-Antes de devolver el JSON:
-
-1. Comprueba que sea sintácticamente válido.
-2. Comprueba que todas las tareas sean profesionales.
-3. Comprueba que pertenezcan al periodo indicado.
-4. Comprueba que no hayas contado conversaciones o prompts como tareas.
-5. Consolida las iteraciones del mismo entregable.
-6. Elimina duplicados.
-7. Comprueba que horas_ia_total incluya revisión, correcciones y retrabajo.
-8. Comprueba que ninguna cifra sea negativa.
-9. Comprueba que los factores estén entre 0 y 1.
-10. Comprueba que los factores varíen cuando cambie la evidencia, la calidad o el aprovechamiento.
-11. Asigna quality_use_factor y capture_factor igual a 0 a las tareas sin resultado.
-12. Devuelve únicamente el JSON final.`;
-
-document.getElementById('promptText').value = PROMPT_TEXT;
-document.getElementById('copyPromptBtn').addEventListener('click', async ()=>{
-  const btn = document.getElementById('copyPromptBtn');
-  try{
-    await navigator.clipboard.writeText(PROMPT_TEXT);
-    btn.textContent = 'Copiado ✓';
-  }catch(e){
-    const ta = document.getElementById('promptText');
-    ta.select(); document.execCommand('copy');
-    btn.textContent = 'Copiado ✓';
-  }
-  setTimeout(()=>{ btn.textContent = 'Copiar prompt'; }, 2000);
-});
-
-let submissions = {};
-let storageOK = false;
-let filterPersonas = new Set();
-let filterFuentes = new Set();
-let localStore = {};
-let automatizaciones = {};
-let localAutoStore = {};
+function normEmail(e){ return (e||'').trim().toLowerCase(); }
+function normName(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim(); }
+function uuid(){ return (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0; return (c=='x'?r:(r&0x3|0x8)).toString(16);})); }
 
 // ── Configuración de Firebase ──────────────────────────────────────────
-// Rellena con los datos de tu proyecto (ver instrucciones de despliegue).
-// Mientras esté sin rellenar, el artifact funciona en modo local (solo tú, solo esta sesión).
 const firebaseConfig = {
   apiKey: "AIzaSyAt__z8E_bnR3-rgmNqzgWp2h4iOE5aiWE",
   authDomain: "jakala-capacidad-ia.firebaseapp.com",
@@ -541,8 +291,7 @@ const firebaseConfig = {
   messagingSenderId: "968616218941",
   appId: "1:968616218941:web:757ceceb31c5921cff7554"
 };
-let db = null;
-let auth = null;
+let db = null, auth = null;
 try{
   if(firebaseConfig.apiKey !== 'TU_API_KEY'){
     firebase.initializeApp(firebaseConfig);
@@ -550,11 +299,32 @@ try{
     auth = firebase.auth();
   }
 }catch(e){ db = null; auth = null; }
-// ─────────────────────────────────────────────────────────────────────
 
+// ── Estado ──────────────────────────────────────────────────────────────
+let submissions = {};
+let automatizaciones = {};
+let localStore = {};
+let localAutoStore = {};
+let storageOK = false;
+let filterPersonas = new Set();
+let filterFuentes = new Set();
+
+let directory = {};           // cargado desde Firebase /directory tras login
+let currentProfile = null;    // { key, nombre, email, departamento, equipo, puesto }
+let currentUid = null;
+let selectedFuente = null;
+let periodo = { inicio:null, fin:null, capacidad:37.5, semanas:null, weeks_source:null };
+let parsedTareasPendientes = null; // tareas normalizadas+clasificadas a la espera de confirmación
+let parsedCoberturaPendiente = null;
+
+const CATEGORIAS = ['Deck/PPT','Informe/Documento','Excel/hojas de cálculo','Herramientas y dashboards HTML/web','Análisis estratégico rápido','Código, scripts y ETL','Documentos de compliance/legal','Automatización/Script','Configuración/Soporte','Otro'];
+const MODALIDADES = ['Asistencia IA','Automatización build','Automatización recurrente'];
+const FUENTES = ['ChatGPT personal','ChatGPT corporativo','Claude personal','Claude corporativo'];
+const DEFAULT_FACTORS = { confidence_factor:0.6, quality_use_factor:0.85, capture_factor:0.6 };
+
+// ── Login / Logout ─────────────────────────────────────────────────────
 document.getElementById('loginBtn').addEventListener('click', doLogin);
 document.getElementById('loginPassword').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-
 function doLogin(){
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
@@ -562,20 +332,18 @@ function doLogin(){
   msgEl.textContent = '';
   if(!auth){ msgEl.textContent = 'Login no configurado todavía.'; return; }
   if(!email || !password){ msgEl.textContent = 'Introduce email y contraseña.'; return; }
-  auth.signInWithEmailAndPassword(email, password).catch(err=>{
-    msgEl.textContent = 'Email o contraseña incorrectos.';
-  });
+  auth.signInWithEmailAndPassword(email, password).catch(()=>{ msgEl.textContent = 'Email o contraseña incorrectos.'; });
 }
-
-document.getElementById('logoutBtn').addEventListener('click', ()=>{
-  if(auth) auth.signOut();
-});
+document.getElementById('logoutBtn').addEventListener('click', ()=>{ if(auth) auth.signOut(); });
 
 if(auth){
-  auth.onAuthStateChanged(user=>{
+  auth.onAuthStateChanged(async user=>{
     if(user){
+      currentUid = user.uid;
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('appRoot').style.display = 'block';
+      await loadDirectory();
+      await resolveProfile(user);
       loadAll();
     } else {
       document.getElementById('loginScreen').style.display = 'flex';
@@ -583,89 +351,528 @@ if(auth){
     }
   });
 } else {
-  // Sin Firebase Auth configurado: no bloquea el acceso (modo desarrollo/local).
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appRoot').style.display = 'block';
   loadAll();
 }
-// ─────────────────────────────────────────────────────────────────────
 
-async function loadAll(){
-  if(db){
-    try{
-      // Suscripción en tiempo real: cualquier envío del equipo actualiza el dashboard de todos al instante.
-      db.ref('submissions').on('value', snap=>{
-        submissions = snap.val() || {};
-        storageOK = true;
-        renderStorageBanner();
-        render();
-      }, err=>{
-        storageOK = false;
-        submissions = {...localStore};
-        renderStorageBanner();
-        render();
-      });
-      db.ref('automatizaciones').on('value', snap=>{
-        automatizaciones = snap.val() || {};
-        render();
-      }, err=>{ automatizaciones = {...localAutoStore}; render(); });
-      return;
-    }catch(e){ storageOK = false; }
+// ── Directorio (Firebase, nunca embebido en el HTML) ───────────────────
+async function loadDirectory(){
+  if(!db){ directory = {}; return; }
+  try{
+    const snap = await db.ref('directory').once('value');
+    directory = snap.val() || {};
+  }catch(e){ directory = {}; }
+}
+
+// ── Resolución de perfil: email autenticado → match guardado → selección asistida ─
+async function resolveProfile(user){
+  const wrap = document.getElementById('profileWrap');
+  const entries = Object.entries(directory);
+
+  if(entries.length===0){
+    wrap.innerHTML = '<div class="msg warn">El directorio de empleados aún no se ha importado en Firebase. Contacta con Fito — no puedes continuar hasta entonces.</div>';
+    return;
   }
-  storageOK = false;
-  submissions = {...localStore};
-  automatizaciones = {...localAutoStore};
-  renderStorageBanner();
-  render();
+
+  const myEmail = normEmail(user.email);
+  let match = entries.find(([k,d]) => normEmail(d.email) === myEmail);
+
+  if(!match){
+    try{
+      const savedSnap = await db.ref('perfil_matches/'+currentUid).once('value');
+      const saved = savedSnap.val();
+      if(saved && directory[saved.directoryKey]){
+        match = [saved.directoryKey, directory[saved.directoryKey]];
+      }
+    }catch(e){}
+  }
+
+  if(match){
+    renderProfileConfirm(match[0], match[1], match[1] && normEmail(match[1].email)===myEmail ? 'firebase_email' : 'manual_selection');
+  } else {
+    renderProfileSearch();
+  }
 }
 
-function renderStorageBanner(){
-  const el = document.getElementById('storageBanner');
-  el.innerHTML = storageOK ? '' :
-    '<div class="msg err" style="margin-bottom:16px">No hay conexión con la base de datos compartida del equipo (falta configurar Firebase, o no hay red). Tus datos se guardan solo en esta sesión del navegador — usa <b>Exportar</b> tras enviarlos y compártelo con quien consolide el dashboard, o usa <b>Importar</b> para cargar archivos recibidos.</div>';
+function renderProfileConfirm(key, d, method){
+  const wrap = document.getElementById('profileWrap');
+  wrap.innerHTML = `
+    <div class="profile-card">
+      <div>
+        <p style="margin:0 0 4px;font-size:12px;color:var(--j-grey-3)">Te hemos identificado como</p>
+        <div class="profile-grid">
+          <div><p class="f">Nombre</p><p class="v">${esc(d.nombre)}</p></div>
+          <div><p class="f">Rol</p><p class="v">${esc(d.puesto||'—')}</p></div>
+          <div><p class="f">Equipo</p><p class="v">${esc(d.equipo||'—')}</p></div>
+          <div><p class="f">Departamento</p><p class="v">${esc(d.departamento||'—')}</p></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="confirmProfileBtn">Confirmar que soy yo</button>
+        <button class="secondary" id="wrongProfileBtn">Mi perfil no es correcto</button>
+      </div>
+    </div>`;
+  document.getElementById('confirmProfileBtn').addEventListener('click', async ()=>{
+    currentProfile = {key, ...d};
+    if(method==='manual_selection'){
+      try{ await db.ref('perfil_matches/'+currentUid).set({directoryKey:key, metodo:method, matched_at:new Date().toISOString()}); }catch(e){}
+    }
+    activateContributeSection();
+  });
+  document.getElementById('wrongProfileBtn').addEventListener('click', renderProfileSearch);
 }
 
-function normalizeTask(t, idx, employeeSlug){
-  const manual = Number(t.horas_manual_base ?? t.horas_manuales ?? 0);
-  const ia = Number(t.horas_ia_total ?? t.horas_claude ?? 0);
-  const anomalia = ia > manual;
-  const isControl = (t.modalidad === 'Sin IA / control');
-  const brutas = Math.max(0, manual - ia);
-  const conf = clamp01(t.confidence_factor);
-  const qual = clamp01(t.quality_use_factor);
-  const cap = clamp01(t.capture_factor);
-  const usedDefaults = conf===null || qual===null || cap===null;
-  const cf = conf===null ? DEFAULT_FACTORS.confidence_factor : conf;
-  const qf = qual===null ? DEFAULT_FACTORS.quality_use_factor : qual;
-  const kf = cap===null ? DEFAULT_FACTORS.capture_factor : cap;
-  const ajustadas = brutas * cf * qf;
-  const capturadas = ajustadas * kf;
+function renderProfileSearch(){
+  const wrap = document.getElementById('profileWrap');
+  wrap.innerHTML = `
+    <div class="card">
+      <p style="margin:0 0 10px;font-size:13px">No hemos podido identificarte automáticamente. Busca tu nombre:</p>
+      <input type="text" id="profileSearchInput" placeholder="Escribe tu nombre...">
+      <div id="profileSearchResults" style="margin-top:12px"></div>
+    </div>`;
+  const input = document.getElementById('profileSearchInput');
+  const resultsEl = document.getElementById('profileSearchResults');
+  input.addEventListener('input', ()=>{
+    const q = normName(input.value);
+    resultsEl.innerHTML = '';
+    if(q.length<2) return;
+    const matches = Object.entries(directory).filter(([k,d]) => normName(d.nombre).includes(q)).slice(0,8);
+    if(matches.length===0){ resultsEl.innerHTML = '<p class="note">Sin resultados. Revisa la escritura o contacta con Fito.</p>'; return; }
+    resultsEl.innerHTML = matches.map(([k,d])=>`
+      <div class="search-result" data-key="${esc(k)}">
+        <span>${esc(d.nombre)}</span>
+        <span class="pill">${esc(d.equipo||'')} · ${esc(d.puesto||'')}</span>
+      </div>`).join('');
+    resultsEl.querySelectorAll('.search-result').forEach(el=>{
+      el.addEventListener('click', async ()=>{
+        const k = el.dataset.key;
+        try{ await db.ref('perfil_matches/'+currentUid).set({directoryKey:k, metodo:'manual_selection', matched_at:new Date().toISOString()}); }catch(e){}
+        renderProfileConfirm(k, directory[k], 'manual_selection');
+      });
+    });
+  });
+}
+
+function activateContributeSection(){
+  document.getElementById('contributeSection').style.display = 'block';
+  const today = new Date().toISOString().slice(0,10);
+  const defaultStart = '2026-06-01';
+  document.getElementById('periodoInicio').value = defaultStart;
+  document.getElementById('periodoFin').value = today;
+  periodo.inicio = defaultStart; periodo.fin = today;
+  renderSemanasQuestion();
+  renderSourceButtons();
+  ['periodoInicio','periodoFin','capacidadInput'].forEach(id=>{
+    document.getElementById(id).addEventListener('change', ()=>{
+      periodo.inicio = document.getElementById('periodoInicio').value;
+      periodo.fin = document.getElementById('periodoFin').value;
+      periodo.capacidad = parseFloat(document.getElementById('capacidadInput').value)||37.5;
+      renderSemanasQuestion();
+      if(selectedFuente) buildAndShowPrompt();
+    });
+  });
+}
+
+function weeksBetween(inicio, fin){
+  const d = (new Date(fin) - new Date(inicio))/(1000*60*60*24);
+  return Math.max(0, d/7);
+}
+
+function renderSemanasQuestion(){
+  const wrap = document.getElementById('semanasWrap');
+  const totalSemanas = weeksBetween(periodo.inicio, periodo.fin);
+  wrap.innerHTML = `
+    <label>¿Has trabajado con normalidad durante todo el periodo analizado (${fmt(totalSemanas,1)} semanas)?</label>
+    <div style="display:flex;gap:10px;margin-bottom:10px">
+      <button type="button" class="secondary" id="semanasSiBtn">Sí</button>
+      <button type="button" class="secondary" id="semanasNoBtn">No</button>
+    </div>
+    <div id="semanasNoWrap" style="display:none">
+      <label>¿Cuántas semanas completas equivalentes no has trabajado? (vacaciones, bajas, etc. — decimales permitidos)</label>
+      <input type="number" id="semanasNoInput" min="0" step="0.5" placeholder="ej. 2 o 1,5">
+    </div>`;
+  document.getElementById('semanasSiBtn').addEventListener('click', ()=>{
+    periodo.semanas = totalSemanas; periodo.weeks_source = 'periodo_completo_confirmado';
+    document.getElementById('semanasNoWrap').style.display = 'none';
+    document.getElementById('semanasSiBtn').style.background = 'var(--j-blue)'; document.getElementById('semanasSiBtn').style.color = '#fff';
+    document.getElementById('semanasNoBtn').style.background = 'transparent'; document.getElementById('semanasNoBtn').style.color = 'var(--j-blue)';
+  });
+  document.getElementById('semanasNoBtn').addEventListener('click', ()=>{
+    document.getElementById('semanasNoWrap').style.display = 'block';
+    document.getElementById('semanasNoBtn').style.background = 'var(--j-blue)'; document.getElementById('semanasNoBtn').style.color = '#fff';
+    document.getElementById('semanasSiBtn').style.background = 'transparent'; document.getElementById('semanasSiBtn').style.color = 'var(--j-blue)';
+  });
+  document.getElementById('semanasNoWrap').addEventListener('input', ()=>{}); // placeholder, leído al enviar
+  wrap.querySelector('#semanasNoWrap').insertAdjacentHTML('beforeend','');
+  document.getElementById('semanasNoWrap').addEventListener('change', ()=>{});
+  const noInputHandler = ()=>{
+    const noTrabajadas = parseFloat(document.getElementById('semanasNoInput')?.value);
+    if(!isNaN(noTrabajadas)){
+      periodo.semanas = Math.max(0, totalSemanas - noTrabajadas);
+      periodo.weeks_source = 'ajustado_por_usuario';
+      periodo.semanas_no_trabajadas = noTrabajadas;
+    }
+  };
+  setTimeout(()=>{ const el=document.getElementById('semanasNoInput'); if(el) el.addEventListener('input', noInputHandler); }, 0);
+  periodo.semanas_periodo = totalSemanas;
+}
+
+function renderSourceButtons(){
+  const grid = document.getElementById('sourceGrid');
+  grid.innerHTML = FUENTES.map(f=>`<button type="button" class="source-btn" data-fuente="${esc(f)}">${esc(f)}</button>`).join('');
+  grid.querySelectorAll('.source-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      selectedFuente = btn.dataset.fuente;
+      grid.querySelectorAll('.source-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      buildAndShowPrompt();
+    });
+  });
+}
+
+function buildAndShowPrompt(){
+  document.getElementById('promptWrap').style.display = 'block';
+  const p = currentProfile;
+  const prompt = `Analiza mis conversaciones profesionales en ${selectedFuente} entre ${periodo.inicio} y ${periodo.fin} y genera un inventario de tareas realizadas con ayuda de esta IA.
+
+MI PERFIL (ya identificado — no lo repitas ni lo pidas, solo úsalo como contexto)
+- Persona: ${p.nombre}
+- Rol: ${p.puesto || 'no especificado'}
+- Equipo: ${p.equipo || 'no especificado'} (${p.departamento || ''})
+- Periodo: ${periodo.inicio} a ${periodo.fin}
+- Capacidad semanal de referencia: ${periodo.capacidad}h
+
+REGLAS DE IDENTIFICACIÓN
+1. Analiza solo conversaciones profesionales dentro del periodo indicado. No incluyas conversaciones personales.
+2. Cuenta TAREAS o entregables, no chats ni prompts: una conversación puede contener varias tareas (sepáralas); una tarea puede ocupar varias conversaciones (consolídalas); varias iteraciones del mismo entregable son UNA tarea, incluyendo revisión y retrabajo.
+3. Incluye también tareas fallidas, descartadas o con retrabajo importante — no selecciones solo los éxitos.
+4. No inventes conversaciones, tareas, fechas ni tiempos. Si no tienes evidencia suficiente para un campo, usa null.
+5. Evita duplicidades: no cuentes la misma tarea dos veces aunque aparezca en varias conversaciones.
+6. Genera work_item_key para cada tarea (para detectar si aparece también en otra plataforma): normaliza "proyecto+entregable+mes aproximado" en minúsculas sin espacios raros, ej. "italfarmaco-informe-mensual-2026-08".
+
+CATEGORÍAS (usa exactamente una): ${CATEGORIAS.join(', ')}
+MODALIDADES (usa exactamente una): ${MODALIDADES.join(', ')}
+COMPLEJIDAD: Baja / Media / Media-Alta / Alta
+
+HORAS
+- horas_manual_base: tiempo que un profesional con seniority similar a mi rol (${p.puesto||'mi rol'}) tardaría sin IA. Prudente, basado en el entregable observado. Si tienes un rango de incertidumbre, rellena también horas_manual_low y horas_manual_high (si no, déjalos en null).
+- horas_ia_total: tiempo humano real (preparación, prompting, revisión, correcciones, formato) — no el tiempo de generación de la IA.
+- manual_time_source_type: una de "tiempo_indicado_usuario" / "tarea_comparable" / "entregable_observado" / "estimado_conversacion" / "evidencia_insuficiente".
+- confidence_level: "alta" / "media" / "baja", coherente con manual_time_source_type (no asignes "alta" por defecto a todo).
+
+SENIORITY DE REFERENCIA PARA CADA TAREA
+- benchmark_seniority: por defecto usa mi rol ("${p.puesto||'no especificado'}"). Solo indica otro si la tarea claramente correspondería a un nivel distinto (ej. una tarea muy junior o muy senior de lo habitual), y en ese caso explica por qué en benchmark_seniority_reason.
+
+CALIDAD Y USO DEL RESULTADO
+- outcome_status: "usado_validado" / "usado_con_correcciones" / "usado_con_modificaciones" / "uso_parcial" / "exploratorio" / "descartado".
+- utility_factor: 0 a 1, coherente con outcome_status (1.0 solo si usado_validado).
+
+CAPTURA DE CAPACIDAD (qué parte del tiempo liberado se reinvirtió de verdad)
+- capture_status: "verificada" (hay evidencia explícita de trabajo adicional) / "utilizada_no_trazada" (se usó pero no está trazado en qué se reinvirtió) / "potencial_sin_evidencia" / "limitada" / "sin_resultado".
+- output_adicional_verificado: true SOLO si puedes señalar un entregable concreto que existe gracias al tiempo liberado. En cualquier otro caso, false.
+- capture_evidence: si output_adicional_verificado es true, qué evidencia lo sustenta.
+
+Antes de responder, comprueba: JSON válido, ninguna cifra negativa, no has contado prompts como tareas, sin duplicados, factores/estados coherentes entre sí.
+
+Devuelve ÚNICAMENTE este JSON, sin texto antes ni después, sin markdown, sin backticks (no repitas mi perfil, ya lo tengo):
+
+{
+  "schema_version": "2.1",
+  "cobertura": {
+    "periodo_cubierto": "",
+    "tipo_acceso": "",
+    "num_conversaciones_revisadas": null,
+    "incluye_historial_completo": false,
+    "lagunas": ""
+  },
+  "tareas": [
+    {
+      "work_item_key": "",
+      "tarea": "",
+      "proyecto": "",
+      "categoria": "",
+      "modalidad": "",
+      "complejidad": "",
+      "fecha_inicio_tarea": null,
+      "fecha_fin_tarea": null,
+      "fuentes_ia_utilizadas": ["${selectedFuente}"],
+      "benchmark_seniority": "",
+      "benchmark_seniority_reason": "",
+      "counterfactual_status": "",
+      "horas_manual_low": null,
+      "horas_manual_base": null,
+      "horas_manual_high": null,
+      "manual_time_source_type": "",
+      "manual_time_evidence": "",
+      "confidence_level": "",
+      "horas_ia_total": null,
+      "horas_ia_source_type": "",
+      "horas_ia_medidas": false,
+      "horas_retrabajo_incluidas": null,
+      "outcome_status": "",
+      "utility_factor": null,
+      "capture_status": "",
+      "captured_hours_verified": null,
+      "capture_type": "",
+      "capture_evidence": "",
+      "output_adicional_verificado": false,
+      "additional_output_description": "",
+      "evidencia": "",
+      "descripcion": ""
+    }
+  ]
+}`;
+  document.getElementById('promptText').value = prompt;
+}
+
+document.getElementById('copyPromptBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('copyPromptBtn');
+  try{ await navigator.clipboard.writeText(document.getElementById('promptText').value); btn.textContent = 'Copiado ✓'; }
+  catch(e){ const ta=document.getElementById('promptText'); ta.select(); document.execCommand('copy'); btn.textContent='Copiado ✓'; }
+  setTimeout(()=>{ btn.textContent='Copiar prompt'; }, 2000);
+});
+
+// ── Normalización de tareas (esquema v2.1, con compatibilidad hacia atrás) ─
+function deriveConfidence(raw){
+  if(typeof raw.confidence_factor === 'number') return clamp01(raw.confidence_factor);
+  const lvl = (raw.confidence_level||'').toLowerCase();
+  if(lvl==='alta') return 0.85;
+  if(lvl==='media') return 0.6;
+  if(lvl==='baja') return 0.35;
+  const t = (raw.manual_time_source_type||'').toLowerCase();
+  if(t.includes('indicado_usuario') || t.includes('medido')) return 0.9;
+  if(t.includes('comparable') || t.includes('entregable_observado')) return 0.75;
+  if(t.includes('estimado_conversacion')) return 0.5;
+  if(t.includes('evidencia_insuficiente')) return 0.25;
+  return null;
+}
+function deriveQuality(raw){
+  if(typeof raw.quality_use_factor === 'number') return clamp01(raw.quality_use_factor);
+  if(typeof raw.utility_factor === 'number') return clamp01(raw.utility_factor);
+  const map = {usado_validado:1.0, usado_con_correcciones:0.9, usado_con_modificaciones:0.75, uso_parcial:0.5, exploratorio:0.25, descartado:0.0};
+  const o = (raw.outcome_status||'').toLowerCase();
+  return map.hasOwnProperty(o) ? map[o] : null;
+}
+function deriveCapture(raw){
+  if(typeof raw.capture_factor === 'number') return clamp01(raw.capture_factor);
+  const map = {verificada:1.0, utilizada_no_trazada:0.75, potencial_sin_evidencia:0.5, limitada:0.25, sin_resultado:0.0};
+  const c = (raw.capture_status||'').toLowerCase();
+  return map.hasOwnProperty(c) ? map[c] : null;
+}
+
+function taskIdFor(raw, idx){
+  const base = raw.work_item_key || raw.tarea || ('tarea-'+idx);
+  return 'task_'+slug(base)+'-'+idx;
+}
+
+function normalizeTaskV2(raw, idx){
+  const manual = Number(raw.horas_manual_base ?? raw.horas_manuales ?? NaN);
+  const ia = Number(raw.horas_ia_total ?? raw.horas_claude ?? NaN);
+  const manualOk = !isNaN(manual) && manual>=0;
+  const iaOk = !isNaN(ia) && ia>=0;
+  const anomalia = manualOk && iaOk && ia > manual;
+  const brutas = (manualOk && iaOk) ? Math.max(0, manual-ia) : 0;
+
+  const confRaw = deriveConfidence(raw), qualRaw = deriveQuality(raw), capRaw = deriveCapture(raw);
+  const usedDefaults = confRaw===null || qualRaw===null || capRaw===null;
+  const cf = confRaw===null ? DEFAULT_FACTORS.confidence_factor : confRaw;
+  const qf = qualRaw===null ? DEFAULT_FACTORS.quality_use_factor : qualRaw;
+  const kf = capRaw===null ? DEFAULT_FACTORS.capture_factor : capRaw;
+  const ajustadas = brutas*cf*qf;
+  const capturadas = ajustadas*kf;
+
   return {
-    task_id: t.task_id || t.dedupe_key || (employeeSlug+'-auto-'+idx),
-    dedupe_key: t.dedupe_key || null,
-    fecha: t.fecha || null,
-    tarea: t.tarea || t.sesion || ('Tarea '+(idx+1)),
-    proyecto: t.proyecto || '',
-    categoria: t.categoria || 'Otro',
-    modalidad: t.modalidad || 'Asistencia IA',
-    complejidad: t.complejidad || '',
-    horas_manual_base: manual, horas_ia_total: ia,
+    task_id: taskIdFor(raw, idx),
+    work_item_key: raw.work_item_key || raw.dedupe_key || null,
+    tarea: raw.tarea || raw.sesion || ('Tarea '+(idx+1)),
+    proyecto: raw.proyecto || '',
+    categoria: CATEGORIAS.includes(raw.categoria) ? raw.categoria : (raw.categoria || 'Otro'),
+    modalidad: MODALIDADES.includes(raw.modalidad) ? raw.modalidad : (raw.modalidad || 'Asistencia IA'),
+    complejidad: raw.complejidad || '',
+    fecha_inicio_tarea: raw.fecha_inicio_tarea || null,
+    fecha_fin_tarea: raw.fecha_fin_tarea || null,
+    fuentes_ia_utilizadas: Array.isArray(raw.fuentes_ia_utilizadas) ? raw.fuentes_ia_utilizadas : (selectedFuente?[selectedFuente]:[]),
+    benchmark_seniority: raw.benchmark_seniority || '',
+    benchmark_seniority_reason: raw.benchmark_seniority_reason || '',
+    counterfactual_status: raw.counterfactual_status || '',
+    horas_manual_low: raw.horas_manual_low ?? null,
+    horas_manual_base: manualOk ? manual : null,
+    horas_manual_high: raw.horas_manual_high ?? null,
+    manual_time_source_type: raw.manual_time_source_type || '',
+    manual_time_evidence: raw.manual_time_evidence || '',
+    confidence_level: raw.confidence_level || '',
+    horas_ia_total: iaOk ? ia : null,
+    horas_ia_source_type: raw.horas_ia_source_type || '',
+    horas_ia_medidas: !!raw.horas_ia_medidas,
+    horas_retrabajo_incluidas: raw.horas_retrabajo_incluidas ?? null,
+    outcome_status: raw.outcome_status || '',
+    utility_factor: raw.utility_factor ?? null,
+    capture_status: raw.capture_status || '',
+    captured_hours_verified: raw.captured_hours_verified ?? null,
+    capture_type: raw.capture_type || '',
+    capture_evidence: raw.capture_evidence || '',
+    output_adicional_verificado: !!raw.output_adicional_verificado,
+    additional_output_description: raw.additional_output_description || '',
+    evidencia: raw.evidencia || '',
+    descripcion: raw.descripcion || '',
     horas_brutas: brutas, horas_ajustadas: ajustadas, horas_capturadas: capturadas,
     confidence_factor: cf, quality_use_factor: qf, capture_factor: kf, usedDefaults,
-    output_adicional_verificado: !!t.output_adicional_verificado,
-    evidencia: t.evidencia || '', descripcion: t.descripcion || '',
-    anomalia, isControl
+    anomalia, manualOk, iaOk
   };
 }
 
-function validate(obj){
-  if(!obj || typeof obj !== 'object') return 'JSON no válido.';
-  if(!obj.persona || typeof obj.persona !== 'string') return 'Falta el campo "persona".';
-  if(!obj.fuente || typeof obj.fuente !== 'string') return 'Falta el campo "fuente".';
-  const tareas = obj.tareas || obj.sesiones;
-  if(!Array.isArray(tareas) || tareas.length===0) return 'Falta el array "tareas" (o está vacío).';
-  return null;
+function classifyTask(t, profile, batchKeys){
+  const reasons = [];
+  if(!t.manualOk) reasons.push('Sin horas manuales.');
+  if(!t.iaOk) reasons.push('Sin horas con IA.');
+  if(!CATEGORIAS.includes(t.categoria)) reasons.push('Categoría no reconocida.');
+  if(!MODALIDADES.includes(t.modalidad)) reasons.push('Modalidad no reconocida.');
+  if(!t.complejidad) reasons.push('Falta complejidad.');
+  if(t.anomalia) reasons.push('Horas IA mayores que horas manuales.');
+  if(t.captured_hours_verified!=null && t.captured_hours_verified > t.horas_brutas) reasons.push('Horas capturadas verificadas superan el potencial disponible.');
+  if(reasons.length>0) return {tier:'rojo', reasons};
+
+  const amber = [];
+  if((t.confidence_level||'').toLowerCase()==='baja') amber.push('Confianza baja en la estimación.');
+  if(t.usedDefaults) amber.push('Factores no indicados por la IA — se aplicaron valores por defecto.');
+  if(t.benchmark_seniority && profile && profile.puesto && normName(t.benchmark_seniority)!==normName(profile.puesto) && !t.benchmark_seniority_reason){
+    amber.push('Seniority de referencia distinto de tu rol, sin justificación.');
+  }
+  if(t.output_adicional_verificado && !t.capture_evidence) amber.push('Marcado como verificado pero sin evidencia de captura.');
+  if(!t.evidencia && !t.descripcion) amber.push('Sin evidencia ni descripción.');
+  if(t.work_item_key && batchKeys[t.work_item_key] > 1) amber.push('Misma work_item_key que otra tarea de este envío — posible duplicado.');
+  if(amber.length>0) return {tier:'ambar', reasons:amber};
+  return {tier:'verde', reasons:[]};
 }
+
+// ── Revisar tareas (parse + clasificar) ─────────────────────────────────
+document.getElementById('parseJsonBtn').addEventListener('click', ()=>{
+  const msgEl = document.getElementById('submitMsg');
+  msgEl.innerHTML = '';
+  if(!selectedFuente){ msgEl.innerHTML = '<div class="msg err">Elige primero la herramienta (paso 1).</div>'; return; }
+  const raw = document.getElementById('jsonInput').value.trim();
+  let obj;
+  try{ obj = JSON.parse(raw); }
+  catch(e){ msgEl.innerHTML = '<div class="msg err">No se ha podido leer el JSON: '+esc(e.message)+'</div>'; return; }
+  const rawTareas = obj.tareas || obj.sesiones;
+  if(!Array.isArray(rawTareas) || rawTareas.length===0){ msgEl.innerHTML = '<div class="msg err">El JSON no contiene un array "tareas" con datos.</div>'; return; }
+
+  const batchKeys = {};
+  rawTareas.forEach(t=>{ if(t.work_item_key){ batchKeys[t.work_item_key] = (batchKeys[t.work_item_key]||0)+1; } });
+
+  const normalized = rawTareas.map((t,i)=>normalizeTaskV2(t,i));
+  parsedTareasPendientes = normalized.map(t=>({...t, ...classifyTask(t, currentProfile, batchKeys)}));
+  parsedCoberturaPendiente = obj.cobertura || null;
+
+  renderReview();
+  document.getElementById('reviewSection').style.display = 'block';
+  document.getElementById('reviewSection').scrollIntoView({behavior:'smooth'});
+});
+
+function renderReview(){
+  const verdes = parsedTareasPendientes.filter(t=>t.tier==='verde');
+  const problematicas = parsedTareasPendientes.filter(t=>t.tier!=='verde');
+  const rojas = parsedTareasPendientes.filter(t=>t.tier==='rojo');
+
+  document.getElementById('reviewSummary').innerHTML = `
+    <span class="tier-badge tier-verde">${verdes.length} verde${verdes.length===1?'':'s'} — listas</span>
+    &nbsp;<span class="tier-badge tier-ambar">${parsedTareasPendientes.filter(t=>t.tier==='ambar').length} ámbar — revisar</span>
+    &nbsp;<span class="tier-badge tier-rojo">${rojas.length} roja${rojas.length===1?'':'s'} — corregir</span>`;
+
+  document.getElementById('reviewGreenBlock').innerHTML = verdes.length ? `
+    <details>
+      <summary>${verdes.length} tarea${verdes.length===1?'':'s'} listas para confirmar en bloque <span class="pill">sin problemas detectados</span></summary>
+      <div class="details-body"><ul style="margin:8px 0 0;padding-left:18px;font-size:12.5px">
+        ${verdes.map(t=>'<li>'+esc(t.tarea)+' — '+esc(t.categoria)+' ('+fmt(t.horas_capturadas)+'h ajustadas)</li>').join('')}
+      </ul></div>
+    </details>` : '<p class="note">Ninguna tarea verde en este envío.</p>';
+
+  document.getElementById('reviewIssuesBlock').innerHTML = problematicas.map((t,i)=>{
+    const idx = parsedTareasPendientes.indexOf(t);
+    return `
+    <div class="review-row ${t.tier}">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+        <b>${esc(t.tarea)}</b>
+        <span class="tier-badge tier-${t.tier}">${t.tier}</span>
+      </div>
+      <p class="note" style="margin:0 0 8px">${t.reasons.map(esc).join(' · ')}</p>
+      <div class="row" style="margin-bottom:0">
+        <div><label>H manual</label><input type="number" step="0.25" min="0" value="${t.horas_manual_base??''}" data-idx="${idx}" data-field="horas_manual_base"></div>
+        <div><label>H IA</label><input type="number" step="0.25" min="0" value="${t.horas_ia_total??''}" data-idx="${idx}" data-field="horas_ia_total"></div>
+        <div><label>Categoría</label>
+          <select data-idx="${idx}" data-field="categoria">${CATEGORIAS.map(c=>'<option'+(c===t.categoria?' selected':'')+'>'+esc(c)+'</option>').join('')}</select>
+        </div>
+        <div><label>Complejidad</label>
+          <select data-idx="${idx}" data-field="complejidad">${['Baja','Media','Media-Alta','Alta'].map(c=>'<option'+(c===t.complejidad?' selected':'')+'>'+c+'</option>').join('')}</select>
+        </div>
+      </div>
+      <button class="secondary" style="margin-top:8px;padding:5px 12px;font-size:12px" data-exclude-idx="${idx}">Excluir esta tarea</button>
+    </div>`;
+  }).join('');
+
+  document.querySelectorAll('#reviewIssuesBlock input,#reviewIssuesBlock select').forEach(el=>{
+    el.addEventListener('change', ()=>{
+      const idx = +el.dataset.idx, field = el.dataset.field;
+      let val = el.value;
+      if(field==='horas_manual_base' || field==='horas_ia_total') val = val===''? null : Number(val);
+      parsedTareasPendientes[idx][field] = val;
+      const manual = parsedTareasPendientes[idx].horas_manual_base, ia = parsedTareasPendientes[idx].horas_ia_total;
+      parsedTareasPendientes[idx].manualOk = manual!=null; parsedTareasPendientes[idx].iaOk = ia!=null;
+      parsedTareasPendientes[idx].anomalia = (manual!=null && ia!=null && ia>manual);
+      const brutas = (manual!=null && ia!=null) ? Math.max(0, manual-ia) : 0;
+      const t = parsedTareasPendientes[idx];
+      t.horas_brutas = brutas; t.horas_ajustadas = brutas*t.confidence_factor*t.quality_use_factor; t.horas_capturadas = t.horas_ajustadas*t.capture_factor;
+      const cls = classifyTask(t, currentProfile, {});
+      parsedTareasPendientes[idx] = {...t, ...cls};
+      renderReview();
+    });
+  });
+  document.querySelectorAll('[data-exclude-idx]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = +btn.dataset.excludeIdx;
+      parsedTareasPendientes.splice(idx,1);
+      renderReview();
+    });
+  });
+
+  const stillRed = parsedTareasPendientes.some(t=>t.tier==='rojo');
+  document.getElementById('finalSubmitBtn').disabled = stillRed || parsedTareasPendientes.length===0;
+}
+
+document.getElementById('cancelReviewBtn').addEventListener('click', ()=>{
+  parsedTareasPendientes = null; parsedCoberturaPendiente = null;
+  document.getElementById('reviewSection').style.display = 'none';
+});
+
+document.getElementById('finalSubmitBtn').addEventListener('click', async ()=>{
+  const msgEl = document.getElementById('finalMsg');
+  msgEl.innerHTML = '';
+  if(!parsedTareasPendientes || parsedTareasPendientes.length===0) return;
+  const p = currentProfile;
+  const key = 'contrib_'+slug(currentUid)+'_'+slug(selectedFuente)+'_'+slug((periodo.inicio||'na')+'_'+periodo.fin);
+  try{
+    const existingTareas = (submissions[key] && submissions[key].tareas) || (localStore[key] && localStore[key].tareas) || [];
+    const merged = mergeTareas(existingTareas, parsedTareasPendientes);
+    const obj = {
+      firebase_uid: currentUid, persona: p.nombre, email_corporativo: p.email,
+      area_rol: p.departamento, team: p.equipo, puesto: p.puesto, seniority_level: null,
+      fuente: selectedFuente, fecha_inicio: periodo.inicio, fecha_fin: periodo.fin,
+      capacidad_semanal: periodo.capacidad, semanas_efectivamente_trabajadas: periodo.semanas,
+      weeks_source: periodo.weeks_source, semanas_periodo: periodo.semanas_periodo,
+      cobertura: parsedCoberturaPendiente,
+      profile_source: 'Personio_bmind_employees_2026-08-28', profile_matched_at: new Date().toISOString(),
+      profile_match_method: p.__method || 'firebase_email', validado_por_usuario: true,
+      enviado_el: new Date().toISOString(), tareas: merged
+    };
+    if(db && storageOK){ await db.ref('submissions/'+key).set(obj); }
+    else{ localStore[key] = obj; submissions = {...submissions, [key]: obj}; render(); }
+    msgEl.innerHTML = '<div class="msg ok">Enviado — '+merged.length+' tareas guardadas.</div>';
+    document.getElementById('jsonInput').value = '';
+    parsedTareasPendientes = null; parsedCoberturaPendiente = null;
+    document.getElementById('reviewSection').style.display = 'none';
+  }catch(e){ msgEl.innerHTML = '<div class="msg err">Error guardando: '+esc(e.message)+'</div>'; }
+});
 
 function mergeTareas(existing, incoming){
   const map = {};
@@ -674,120 +881,39 @@ function mergeTareas(existing, incoming){
   return Object.values(map);
 }
 
-document.getElementById('submitBtn').addEventListener('click', async ()=>{
-  const msgEl = document.getElementById('submitMsg');
-  msgEl.innerHTML = '';
-  const persona = document.getElementById('personaInput').value.trim();
-  const employeeIdRaw = document.getElementById('employeeIdInput').value.trim();
-  const fuente = document.getElementById('fuenteInput').value;
-  const raw = document.getElementById('jsonInput').value.trim();
-  if(!persona){ msgEl.innerHTML = '<div class="msg err">Indica tu nombre.</div>'; return; }
-  let obj;
-  try{ obj = JSON.parse(raw); }
-  catch(e){ msgEl.innerHTML = '<div class="msg err">No se ha podido leer el JSON: '+esc(e.message)+'</div>'; return; }
-  obj.persona = persona;
-  obj.fuente = fuente;
-  obj.employee_id = employeeIdRaw || obj.employee_id || slug(persona);
-  obj.seniority = obj.seniority || null;
-  obj.semanas_efectivamente_trabajadas = (obj.semanas_efectivamente_trabajadas!=null && obj.semanas_efectivamente_trabajadas!=='') ? Number(obj.semanas_efectivamente_trabajadas) : null;
-  obj.cobertura = obj.cobertura || null;
-  const err = validate(obj);
-  if(err){ msgEl.innerHTML = '<div class="msg err">'+esc(err)+'</div>'; return; }
+// ── Carga de datos (tiempo real) ────────────────────────────────────────
+async function loadAll(){
+  if(db){
+    try{
+      db.ref('submissions').on('value', snap=>{
+        submissions = snap.val() || {};
+        storageOK = true;
+        renderStorageBanner();
+        render();
+      }, ()=>{ storageOK = false; submissions = {...localStore}; renderStorageBanner(); render(); });
+      db.ref('automatizaciones').on('value', snap=>{
+        automatizaciones = snap.val() || {};
+        render();
+      }, ()=>{ automatizaciones = {...localAutoStore}; render(); });
+      return;
+    }catch(e){ storageOK = false; }
+  }
+  storageOK = false;
+  submissions = {...localStore}; automatizaciones = {...localAutoStore};
+  renderStorageBanner(); render();
+}
 
-  const employeeSlug = slug(obj.employee_id);
-  const rawTareas = obj.tareas || obj.sesiones;
-  const normalized = rawTareas.map((t,i)=>normalizeTask(t,i,employeeSlug));
-  const anomalies = normalized.filter(t=>t.anomalia).length;
+function renderStorageBanner(){
+  const el = document.getElementById('storageBanner');
+  el.innerHTML = storageOK ? '' :
+    '<div class="msg err" style="margin-bottom:16px">No hay conexión con la base de datos compartida (falta configurar Firebase, o no hay red). Tus datos se guardan solo en esta sesión del navegador.</div>';
+}
 
-  obj.fecha_inicio = obj.fecha_inicio || null;
-  obj.fecha_fin = obj.fecha_fin || obj.fecha_analisis || new Date().toISOString().slice(0,10);
-  obj.capacidad_semanal = Number(obj.capacidad_semanal) || 37.5;
-  obj.enviado_el = new Date().toISOString();
-
-  const period = slug((obj.fecha_inicio||'na')+'_'+obj.fecha_fin);
-  const key = 'submission:'+employeeSlug+':'+slug(fuente)+':'+period;
-
-  try{
-    let existingTareas = (submissions[key] && submissions[key].tareas) || (localStore[key] && localStore[key].tareas) || [];
-    obj.tareas = mergeTareas(existingTareas, normalized);
-    delete obj.sesiones;
-
-    if(db && storageOK){
-      await db.ref('submissions/'+key).set(obj);
-    } else {
-      localStore[key] = obj;
-      submissions = {...submissions, [key]: obj};
-    }
-    msgEl.innerHTML = '<div class="msg ok">Datos guardados — '+obj.tareas.length+' tareas registradas para '+esc(persona)+' ('+esc(fuente)+').'+
-      (anomalies>0 ? ' <span class="pill danger">'+anomalies+' con horas IA &gt; horas manuales (revisar)</span>' : '')+
-      (storageOK?'':' Recuerda exportar tu JSON para compartirlo.')+'</div>';
-    document.getElementById('jsonInput').value = '';
-    if(!db || !storageOK){ renderStorageBanner(); render(); }
-  }catch(e){ msgEl.innerHTML = '<div class="msg err">Error guardando los datos: '+esc(e.message)+'</div>'; }
-});
-
-document.getElementById('clearMineBtn').addEventListener('click', async ()=>{
-  const persona = document.getElementById('personaInput').value.trim();
-  const employeeIdRaw = document.getElementById('employeeIdInput').value.trim();
-  const fuente = document.getElementById('fuenteInput').value;
-  const msgEl = document.getElementById('submitMsg');
-  if(!persona){ msgEl.innerHTML = '<div class="msg err">Indica tu nombre para borrar tus datos.</div>'; return; }
-  const employeeSlug = slug(employeeIdRaw || persona);
-  const prefix = 'submission:'+employeeSlug+':'+slug(fuente)+':';
-  try{
-    const matching = Object.keys(submissions).filter(k=>k.startsWith(prefix));
-    if(db && storageOK){
-      for(const k of matching) await db.ref('submissions/'+k).remove();
-    } else {
-      matching.forEach(k=>{ delete localStore[k]; });
-      Object.keys(localStore).filter(k=>k.startsWith(prefix)).forEach(k=>delete localStore[k]);
-      submissions = {...submissions}; matching.forEach(k=>delete submissions[k]);
-    }
-    msgEl.innerHTML = '<div class="msg ok">Tus datos de '+esc(fuente)+' han sido eliminados.</div>';
-    if(!db || !storageOK){ render(); }
-  }catch(e){ msgEl.innerHTML = '<div class="msg err">No se ha podido borrar: '+esc(e.message)+'</div>'; }
-});
-
-document.getElementById('exportBtn').addEventListener('click', ()=>{
-  const blob = new Blob([JSON.stringify(submissions, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'capacidad_ia_datos_'+new Date().toISOString().slice(0,10)+'.json';
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
-});
-
-document.getElementById('importInput').addEventListener('change', async (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const msgEl = document.getElementById('submitMsg');
-  try{
-    const text = await file.text();
-    const parsed = JSON.parse(text);
-    const entries = (parsed && parsed.persona) ?
-      {['submission:'+slug(parsed.employee_id||parsed.persona)+':'+slug(parsed.fuente||'otro')+':'+slug((parsed.fecha_inicio||'na')+'_'+(parsed.fecha_fin||'na'))]: parsed}
-      : parsed;
-    for(const [k,v] of Object.entries(entries)){
-      let existingTareas = (submissions[k] && submissions[k].tareas) || (localStore[k] && localStore[k].tareas) || [];
-      const incoming = (v.tareas||v.sesiones||[]).map((t,i)=>normalizeTask(t,i,slug(v.employee_id||v.persona)));
-      v.tareas = mergeTareas(existingTareas, incoming);
-      delete v.sesiones;
-      if(db && storageOK){ await db.ref('submissions/'+k).set(v); }
-      else{ localStore[k] = v; submissions = {...submissions, [k]: v}; }
-    }
-    msgEl.innerHTML = '<div class="msg ok">Importados '+Object.keys(entries).length+' registro(s).</div>';
-    if(!db || !storageOK){ render(); }
-  }catch(err){ msgEl.innerHTML = '<div class="msg err">No se ha podido importar el archivo: '+esc(err.message)+'</div>'; }
-  e.target.value = '';
-});
-
-function slugify(s){ return slug(s); }
-
+// ── Automatizaciones activas ────────────────────────────────────────────
 document.getElementById('autoSubmitBtn').addEventListener('click', async ()=>{
   const msgEl = document.getElementById('autoMsg');
   msgEl.innerHTML = '';
-  const persona = document.getElementById('personaInput').value.trim();
-  const employeeIdRaw = document.getElementById('employeeIdInput').value.trim();
+  if(!currentProfile){ msgEl.innerHTML = '<div class="msg err">Confirma tu perfil primero (sección 1).</div>'; return; }
   const nombre = document.getElementById('autoNombre').value.trim();
   const categoria = document.getElementById('autoCategoria').value;
   const estado = document.getElementById('autoEstado').value;
@@ -796,24 +922,19 @@ document.getElementById('autoSubmitBtn').addEventListener('click', async ()=>{
   const mant = parseFloat(document.getElementById('autoMantenimiento').value) || 0;
   const conf = clamp01(document.getElementById('autoConfianza').value);
   const desc = document.getElementById('autoDescripcion').value.trim();
-
-  if(!persona){ msgEl.innerHTML = '<div class="msg err">Indica tu nombre en la sección 2 primero.</div>'; return; }
   if(!nombre){ msgEl.innerHTML = '<div class="msg err">Indica un nombre para la automatización.</div>'; return; }
   if(isNaN(manual) || manual<0){ msgEl.innerHTML = '<div class="msg err">Indica las horas manuales/semana previas (≥0).</div>'; return; }
 
-  const employeeSlug = slug(employeeIdRaw || persona);
-  const autoId = employeeSlug+'-auto-'+slug(nombre)+'-'+Date.now();
+  const autoId = 'auto_'+slug(currentUid)+'-'+slug(nombre)+'-'+Date.now();
   const obj = {
-    automatizacion_id: autoId, persona, employee_id: employeeIdRaw || slug(persona),
+    automatizacion_id: autoId, firebase_uid: currentUid, persona: currentProfile.nombre,
     nombre, categoria, estado, fecha_puesta_en_marcha: fecha,
     horas_manuales_semanales_previas: manual, horas_mantenimiento_semanales: mant,
-    confidence_factor: conf===null ? 0.6 : conf, descripcion: desc,
-    enviado_el: new Date().toISOString()
+    confidence_factor: conf===null?0.6:conf, descripcion: desc, enviado_el: new Date().toISOString()
   };
-
   try{
     if(db && storageOK){ await db.ref('automatizaciones/'+autoId).set(obj); }
-    else{ localAutoStore[autoId] = obj; automatizaciones = {...automatizaciones, [autoId]: obj}; render(); }
+    else{ localAutoStore[autoId]=obj; automatizaciones={...automatizaciones,[autoId]:obj}; render(); }
     msgEl.innerHTML = '<div class="msg ok">Automatización registrada.</div>';
     ['autoNombre','autoFecha','autoManual','autoMantenimiento','autoConfianza','autoDescripcion'].forEach(id=>document.getElementById(id).value='');
   }catch(e){ msgEl.innerHTML = '<div class="msg err">Error guardando: '+esc(e.message)+'</div>'; }
@@ -822,109 +943,74 @@ document.getElementById('autoSubmitBtn').addEventListener('click', async ()=>{
 function renderAutomatizaciones(list){
   const hoy = new Date();
   const rows = [];
-  let weeklyTotal = 0, cumTotal = 0;
+  let weeklyTotal=0, cumTotal=0;
   list.forEach(a=>{
     const cf = a.confidence_factor ?? 0.6;
-    const ahorroSemanal = Math.max(0, (a.horas_manuales_semanales_previas||0) - (a.horas_mantenimiento_semanales||0)) * cf;
-    let semanas = 0, acumulado = 0;
+    const ahorroSemanal = Math.max(0,(a.horas_manuales_semanales_previas||0)-(a.horas_mantenimiento_semanales||0))*cf;
+    let semanas=0, acumulado=0;
     if(a.estado==='activa' && a.fecha_puesta_en_marcha){
-      const dias = (hoy - new Date(a.fecha_puesta_en_marcha))/(1000*60*60*24);
-      semanas = Math.max(0, dias/7);
-      acumulado = ahorroSemanal*semanas;
-      weeklyTotal += ahorroSemanal;
-      cumTotal += acumulado;
+      semanas = Math.max(0, (hoy-new Date(a.fecha_puesta_en_marcha))/(1000*60*60*24)/7);
+      acumulado = ahorroSemanal*semanas; weeklyTotal+=ahorroSemanal; cumTotal+=acumulado;
     }
     rows.push({...a, ahorroSemanal, semanas, acumulado});
   });
-
   document.getElementById('autoMetrics').innerHTML = `
     <div class="metric"><p class="label">Automatizaciones activas</p><p class="val">${rows.filter(r=>r.estado==='activa').length}</p></div>
     <div class="metric"><p class="label">Ahorro recurrente/semana</p><p class="val">${fmt(weeklyTotal)}h</p></div>
-    <div class="metric"><p class="label">Ahorro acumulado a hoy</p><p class="val">${fmt(cumTotal)}h</p></div>
-  `;
-
-  if(rows.length===0){
-    document.getElementById('autoTableWrap').innerHTML = '<p class="empty">Aún no hay automatizaciones registradas.</p>';
-    return;
-  }
-
-  const statusLabel = {activa:'Activa', en_desarrollo:'En desarrollo', pausada:'Pausada'};
+    <div class="metric"><p class="label">Ahorro acumulado a hoy</p><p class="val">${fmt(cumTotal)}h</p></div>`;
+  if(rows.length===0){ document.getElementById('autoTableWrap').innerHTML = '<p class="empty">Aún no hay automatizaciones registradas.</p>'; return {weeklyTotal:0,cumTotal:0}; }
   const tableRows = rows.sort((a,b)=>b.acumulado-a.acumulado).map(r=>`
     <tr>
-      <td>${esc(r.nombre)}</td>
-      <td>${esc(r.persona)}</td>
-      <td>${esc(r.categoria)}</td>
-      <td>${r.estado==='activa'?'<span class="pill" style="background:#e4f5e4;color:#1a6b1a">Activa</span>':r.estado==='pausada'?'<span class="pill danger">Pausada</span>':'<span class="pill warn">'+esc(statusLabel[r.estado]||r.estado)+'</span>'}</td>
-      <td style="text-align:right">${fmt(r.ahorroSemanal)}h</td>
-      <td style="text-align:right">${fmt(r.semanas,1)}</td>
+      <td>${esc(r.nombre)}</td><td>${esc(r.persona)}</td><td>${esc(r.categoria)}</td>
+      <td>${r.estado==='activa'?'<span class="pill ok">Activa</span>':r.estado==='pausada'?'<span class="pill danger">Pausada</span>':'<span class="pill warn">En desarrollo</span>'}</td>
+      <td style="text-align:right">${fmt(r.ahorroSemanal)}h</td><td style="text-align:right">${fmt(r.semanas,1)}</td>
       <td style="text-align:right;font-weight:600">${fmt(r.acumulado)}h</td>
-      <td><button class="row-del-btn" data-auto-id="${esc(r.automatizacion_id)}" title="Borrar" aria-label="Borrar">×</button></td>
+      <td><button class="row-del-btn" data-auto-id="${esc(r.automatizacion_id)}">×</button></td>
     </tr>`).join('');
-  document.getElementById('autoTableWrap').innerHTML = `
-    <table><thead><tr><th>Automatización</th><th>Persona</th><th>Categoría</th><th>Estado</th><th style="text-align:right">Ahorro/sem</th><th style="text-align:right">Semanas activa</th><th style="text-align:right">Acumulado</th><th></th></tr></thead>
-    <tbody>${tableRows}</tbody></table>`;
-
+  document.getElementById('autoTableWrap').innerHTML = `<table><thead><tr><th>Automatización</th><th>Persona</th><th>Categoría</th><th>Estado</th><th style="text-align:right">Ahorro/sem</th><th style="text-align:right">Semanas</th><th style="text-align:right">Acumulado</th><th></th></tr></thead><tbody>${tableRows}</tbody></table>`;
   document.querySelectorAll('#autoTableWrap .row-del-btn').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
-      if(!confirm('¿Borrar esta automatización del registro?')) return;
+      if(!confirm('¿Borrar esta automatización?')) return;
       const id = btn.dataset.autoId;
       try{
         if(db && storageOK) await db.ref('automatizaciones/'+id).remove();
-        else{ delete localAutoStore[id]; automatizaciones = {...automatizaciones}; delete automatizaciones[id]; render(); }
+        else{ delete localAutoStore[id]; automatizaciones={...automatizaciones}; delete automatizaciones[id]; render(); }
       }catch(e){ alert('No se ha podido borrar: '+e.message); }
     });
   });
-
   return {weeklyTotal, cumTotal};
 }
 
-let catChart;
-
+// ── Filtros ──────────────────────────────────────────────────────────────
 function renderFilters(){
   const all = Object.values(submissions);
   const personas = [...new Set(all.map(s=>s.persona))].sort();
   const fuentes = [...new Set(all.map(s=>s.fuente).filter(Boolean))].sort();
-
-  const pEl = document.getElementById('filterPersonas');
-  pEl.innerHTML = personas.map(p=>{
-    const active = filterPersonas.has(p);
-    return `<button class="filter-chip${active?' active':''}" data-kind="persona" data-val="${esc(p)}">${esc(p)}</button>`;
-  }).join('');
-
-  const fEl = document.getElementById('filterFuentes');
-  fEl.innerHTML = fuentes.map(f=>{
-    const active = filterFuentes.has(f);
-    return `<button class="filter-chip${active?' active':''}" data-kind="fuente" data-val="${esc(f)}">${esc(f)}</button>`;
-  }).join('');
-
+  document.getElementById('filterPersonas').innerHTML = personas.map(p=>`<button class="filter-chip${filterPersonas.has(p)?' active':''}" data-kind="persona" data-val="${esc(p)}">${esc(p)}</button>`).join('');
+  document.getElementById('filterFuentes').innerHTML = fuentes.map(f=>`<button class="filter-chip${filterFuentes.has(f)?' active':''}" data-kind="fuente" data-val="${esc(f)}">${esc(f)}</button>`).join('');
   document.querySelectorAll('.filter-chip').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const set = btn.dataset.kind==='persona' ? filterPersonas : filterFuentes;
+      const set = btn.dataset.kind==='persona'?filterPersonas:filterFuentes;
       if(set.has(btn.dataset.val)) set.delete(btn.dataset.val); else set.add(btn.dataset.val);
       render();
     });
   });
 }
-document.getElementById('filterResetBtn').addEventListener('click', ()=>{
-  filterPersonas.clear(); filterFuentes.clear(); render();
-});
+document.getElementById('filterResetBtn').addEventListener('click', ()=>{ filterPersonas.clear(); filterFuentes.clear(); render(); });
 
+// ── Render principal ─────────────────────────────────────────────────────
+let catChart;
 function render(){
   renderFilters();
   const fullList = Object.values(submissions);
-  const list = fullList.filter(s =>
-    (filterPersonas.size===0 || filterPersonas.has(s.persona)) &&
-    (filterFuentes.size===0 || filterFuentes.has(s.fuente))
-  );
+  const list = fullList.filter(s => (filterPersonas.size===0||filterPersonas.has(s.persona)) && (filterFuentes.size===0||filterFuentes.has(s.fuente)));
   const teamMetrics = document.getElementById('teamMetrics');
 
-  const autoList = Object.values(automatizaciones).filter(a =>
-    (filterPersonas.size===0 || filterPersonas.has(a.persona))
-  );
-  const autoTotals = renderAutomatizaciones(autoList) || {weeklyTotal:0, cumTotal:0};
+  const autoList = Object.values(automatizaciones).filter(a => filterPersonas.size===0||filterPersonas.has(a.persona));
+  const autoTotals = renderAutomatizaciones(autoList) || {weeklyTotal:0,cumTotal:0};
 
   if(fullList.length===0){
-    teamMetrics.innerHTML = '<div class="empty">Todavía no hay datos del equipo. Sé la primera persona en aportar los tuyos arriba.</div>';
+    teamMetrics.innerHTML = '<div class="empty">Todavía no hay datos del equipo.</div>';
     document.getElementById('execSummary').innerHTML = '';
     ['catTableWrap','personTableWrap','submissionsWrap'].forEach(id=>document.getElementById(id).innerHTML='');
     if(catChart) catChart.destroy();
@@ -940,234 +1026,142 @@ function render(){
     return;
   }
 
-  let totalBrutas=0, totalCapturadas=0, totalTareas=0, sumManualAsist=0, sumIaAsist=0;
-  let weeklyBrutaSum=0, weeklyCapturadaSum=0;
-  const byCat = {};
-  const byPersonMap = {};
-  const dedupeMap = {};
+  let totalBrutas=0,totalCapturadas=0,totalTareas=0,sumManualAsist=0,sumIaAsist=0,weeklyBrutaSum=0,weeklyCapturadaSum=0;
+  const byCat={}, byPersonMap={}, dedupeMap={};
 
   list.forEach(sub=>{
     let subBrutas=0, subCapturadas=0;
     (sub.tareas||[]).forEach(t=>{
-      if(t.dedupe_key){
-        if(!dedupeMap[t.dedupe_key]) dedupeMap[t.dedupe_key] = [];
-        dedupeMap[t.dedupe_key].push({persona:sub.persona, fuente:sub.fuente, tarea:t.tarea});
+      if(t.work_item_key){
+        if(!dedupeMap[t.work_item_key]) dedupeMap[t.work_item_key]=[];
+        dedupeMap[t.work_item_key].push({persona:sub.persona, fuente:sub.fuente, tarea:t.tarea});
       }
-      if(t.anomalia || t.isControl) return;
-      subBrutas += t.horas_brutas;
-      subCapturadas += t.horas_capturadas;
+      if(t.anomalia) return;
+      subBrutas += t.horas_brutas; subCapturadas += t.horas_capturadas;
       if(t.horas_ia_total>0){ sumManualAsist += t.horas_manual_base; sumIaAsist += t.horas_ia_total; }
       const cat = t.categoria || 'Otro';
-      if(!byCat[cat]) byCat[cat] = {brutas:0, capturadas:0, valores:[]};
-      byCat[cat].brutas += t.horas_brutas;
-      byCat[cat].capturadas += t.horas_capturadas;
-      byCat[cat].valores.push(t.horas_capturadas);
+      if(!byCat[cat]) byCat[cat]={brutas:0,capturadas:0,valores:[]};
+      byCat[cat].brutas += t.horas_brutas; byCat[cat].capturadas += t.horas_capturadas; byCat[cat].valores.push(t.horas_capturadas);
     });
-    totalBrutas += subBrutas; totalCapturadas += subCapturadas;
-    totalTareas += (sub.tareas||[]).length;
-
+    totalBrutas+=subBrutas; totalCapturadas+=subCapturadas; totalTareas += (sub.tareas||[]).length;
     let weeks = sub.semanas_efectivamente_trabajadas || null;
-    if(!weeks && sub.fecha_inicio && sub.fecha_fin){
-      const days = (new Date(sub.fecha_fin) - new Date(sub.fecha_inicio))/(1000*60*60*24);
-      if(days>0) weeks = days/7;
-    }
+    if(!weeks && sub.fecha_inicio && sub.fecha_fin){ const d=(new Date(sub.fecha_fin)-new Date(sub.fecha_inicio))/(1000*60*60*24); if(d>0) weeks=d/7; }
     if(weeks){ weeklyBrutaSum += subBrutas/weeks; weeklyCapturadaSum += subCapturadas/weeks; }
-
     const pKey = sub.persona;
-    if(!byPersonMap[pKey]) byPersonMap[pKey] = {persona:pKey, brutas:0, capturadas:0, tareas:0, capacidad:sub.capacidad_semanal||37.5, weeklyCapturada:0, hasWeekly:false};
-    byPersonMap[pKey].brutas += subBrutas;
-    byPersonMap[pKey].capturadas += subCapturadas;
-    byPersonMap[pKey].tareas += (sub.tareas||[]).length;
-    if(weeks){ byPersonMap[pKey].weeklyCapturada += subCapturadas/weeks; byPersonMap[pKey].hasWeekly = true; }
+    if(!byPersonMap[pKey]) byPersonMap[pKey]={persona:pKey, brutas:0, capturadas:0, tareas:0, capacidad:sub.capacidad_semanal||37.5, weeklyCapturada:0, hasWeekly:false, legacy:!sub.firebase_uid};
+    byPersonMap[pKey].brutas+=subBrutas; byPersonMap[pKey].capturadas+=subCapturadas; byPersonMap[pKey].tareas += (sub.tareas||[]).length;
+    if(weeks){ byPersonMap[pKey].weeklyCapturada += subCapturadas/weeks; byPersonMap[pKey].hasWeekly=true; }
   });
 
-  const dupWarnings = Object.entries(dedupeMap).filter(([k,arr])=>{
-    const fuentes = new Set(arr.map(a=>a.fuente));
-    return fuentes.size>1;
-  });
-
+  const dupWarnings = Object.entries(dedupeMap).filter(([k,arr])=> new Set(arr.map(a=>a.fuente)).size>1);
   const multiplicador = sumIaAsist>0 ? sumManualAsist/sumIaAsist : 0;
   const capacidadEquipo = Object.values(byPersonMap).reduce((s,p)=>s+(p.capacidad||37.5),0);
-  const pctBruto = capacidadEquipo>0 ? weeklyBrutaSum/capacidadEquipo : 0;
   const pctCapturado = capacidadEquipo>0 ? weeklyCapturadaSum/capacidadEquipo : 0;
 
   const dupBanner = dupWarnings.length>0 ? `
-    <div class="msg warn" style="margin-bottom:14px">
-      <b>${dupWarnings.length} posible(s) duplicado(s) entre fuentes distintas</b> (misma dedupe_key en más de una plataforma) —
-      revisa antes de sumar, puede ser la misma tarea contada dos veces (ej. la misma propuesta trabajada en Claude y en ChatGPT):
-      ${dupWarnings.slice(0,5).map(([k,arr])=>'<div style="margin-top:4px">· '+esc(arr[0].tarea)+' — '+arr.map(a=>esc(a.fuente)).join(' / ')+'</div>').join('')}
-      ${dupWarnings.length>5?'<div style="margin-top:4px">…y '+(dupWarnings.length-5)+' más.</div>':''}
-    </div>` : '';
+    <div class="msg warn" style="margin-bottom:14px"><b>${dupWarnings.length} posible(s) duplicado(s) entre fuentes distintas</b> (misma work_item_key en más de una plataforma):
+    ${dupWarnings.slice(0,5).map(([k,arr])=>'<div style="margin-top:4px">· '+esc(arr[0].tarea)+' — '+arr.map(a=>esc(a.fuente)).join(' / ')+'</div>').join('')}
+    ${dupWarnings.length>5?'<div>…y '+(dupWarnings.length-5)+' más.</div>':''}</div>` : '';
 
   const numPersonas = Object.keys(byPersonMap).length;
-  const filterNote = (filterPersonas.size>0 || filterFuentes.size>0) ? ' (con el filtro aplicado)' : '';
+  const filterNote = (filterPersonas.size>0||filterFuentes.size>0) ? ' (con el filtro aplicado)' : '';
   const topCat = Object.entries(byCat).sort((a,b)=>b[1].capturadas-a[1].capturadas)[0];
-  const autoNote = autoTotals.weeklyTotal>0
-    ? ` A eso se suman <b>${fmt(autoTotals.weeklyTotal)}h/semana</b> recurrentes de automatizaciones ya activas (${fmt(autoTotals.cumTotal)}h acumuladas desde su puesta en marcha), que no dependen de que nadie siga usando IA para generarlas.`
-    : '';
+  const autoNote = autoTotals.weeklyTotal>0 ? ` A eso se suman <b>${fmt(autoTotals.weeklyTotal)}h/semana</b> recurrentes de automatizaciones activas (${fmt(autoTotals.cumTotal)}h acumuladas).` : '';
   document.getElementById('execSummary').innerHTML =
-    `Con <b>${totalTareas} tareas</b> registradas de <b>${numPersonas} persona${numPersonas===1?'':'s'}</b>${filterNote}, `+
-    `el trabajo asistido avanza a un ritmo <b>${fmt(multiplicador)}x</b> más rápido que sin IA. `+
-    `Ajustando por confianza, calidad y reinversión, eso se traduce en <b>${fmt(weeklyCapturadaSum)}h/semana</b> `+
-    `(${fmtPct(pctCapturado)} de la capacidad del equipo analizado)`+
-    (topCat ? `, concentradas sobre todo en <b>${esc(topCat[0])}</b>.` : '.') + autoNote;
+    `Con <b>${totalTareas} tareas</b> de <b>${numPersonas} persona${numPersonas===1?'':'s'}</b>${filterNote}, el trabajo asistido avanza a <b>${fmt(multiplicador)}x</b> más rápido que sin IA. `+
+    `Ajustado, son <b>${fmt(weeklyCapturadaSum)}h/semana</b> (${fmtPct(pctCapturado)} de la capacidad analizada)`+
+    (topCat?`, sobre todo en <b>${esc(topCat[0])}</b>.`:'.')+autoNote;
 
   teamMetrics.innerHTML = dupBanner + `
     <div class="metric"><p class="label">Tareas registradas</p><p class="val">${totalTareas}</p></div>
-    <div class="metric"><p class="label">Multiplicador (tareas asistidas)</p><p class="val">${fmt(multiplicador)}x</p></div>
-    <div class="metric"><p class="label">H potenciales totales</p><p class="val">${fmt(totalBrutas)}</p></div>
-    <div class="metric"><p class="label">H ajustadas totales</p><p class="val">${fmt(totalCapturadas)}</p></div>
-    <div class="metric"><p class="label">Ajustada/sem equipo (tareas)</p><p class="val">${fmt(weeklyCapturadaSum)}h <span class="val sub2">(${fmtPct(pctCapturado)} de ${fmt(capacidadEquipo,0)}h)</span></p></div>
-    <div class="metric"><p class="label">+ Recurrente/sem (automatizaciones)</p><p class="val">${fmt(autoTotals.weeklyTotal)}h</p></div>
-  `;
+    <div class="metric"><p class="label">Multiplicador</p><p class="val">${fmt(multiplicador)}x</p></div>
+    <div class="metric"><p class="label">H potenciales</p><p class="val">${fmt(totalBrutas)}</p></div>
+    <div class="metric"><p class="label">H ajustadas</p><p class="val">${fmt(totalCapturadas)}</p></div>
+    <div class="metric"><p class="label">Ajustada/sem (tareas)</p><p class="val">${fmt(weeklyCapturadaSum)}h</p></div>
+    <div class="metric"><p class="label">+ Recurrente/sem</p><p class="val">${fmt(autoTotals.weeklyTotal)}h</p></div>`;
 
   const catRows = Object.entries(byCat).sort((a,b)=>b[1].capturadas-a[1].capturadas).map(([cat,d])=>`
-    <tr>
-      <td>${esc(cat)}</td>
-      <td style="text-align:right">${fmt(d.brutas)}h</td>
-      <td style="text-align:right">${fmt(d.capturadas)}h</td>
-      <td style="text-align:right">${fmt(median(d.valores))}h</td>
-      <td style="text-align:right">${d.brutas>0?fmtPct(d.capturadas/d.brutas):'—'}</td>
-    </tr>`).join('');
-  document.getElementById('catTableWrap').innerHTML = `
-    <div class="card">
-      <table><thead><tr><th>Categoría</th><th style="text-align:right">H potenciales</th><th style="text-align:right">H ajustadas</th><th style="text-align:right">Mediana/tarea</th><th style="text-align:right">% ajuste</th></tr></thead>
-      <tbody>${catRows}</tbody></table>
-    </div>`;
+    <tr><td>${esc(cat)}</td><td style="text-align:right">${fmt(d.brutas)}h</td><td style="text-align:right">${fmt(d.capturadas)}h</td><td style="text-align:right">${fmt(median(d.valores))}h</td><td style="text-align:right">${d.brutas>0?fmtPct(d.capturadas/d.brutas):'—'}</td></tr>`).join('');
+  document.getElementById('catTableWrap').innerHTML = `<div class="card"><table><thead><tr><th>Categoría</th><th style="text-align:right">H potenciales</th><th style="text-align:right">H ajustadas</th><th style="text-align:right">Mediana</th><th style="text-align:right">% ajuste</th></tr></thead><tbody>${catRows}</tbody></table></div>`;
 
   const catLabels = Object.keys(byCat);
-  const ctx = document.getElementById('catChart');
   if(catChart) catChart.destroy();
-  catChart = new Chart(ctx, {
-    type:'bar',
-    data:{ labels: catLabels, datasets:[
-      {label:'H potenciales', data: catLabels.map(c=>+byCat[c].brutas.toFixed(1)), backgroundColor:'#c3c2b7', borderRadius:4, maxBarThickness:22},
-      {label:'H ajustadas', data: catLabels.map(c=>+byCat[c].capturadas.toFixed(1)), backgroundColor:'#040066', borderRadius:4, maxBarThickness:22}
-    ]},
-    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{ x:{title:{display:true,text:'Horas'}, grid:{color:'#e4e4e4'}}, y:{grid:{display:false}} } }
+  catChart = new Chart(document.getElementById('catChart'), {
+    type:'bar', data:{labels:catLabels, datasets:[
+      {label:'H potenciales', data:catLabels.map(c=>+byCat[c].brutas.toFixed(1)), backgroundColor:'#c3c2b7', borderRadius:4, maxBarThickness:22},
+      {label:'H ajustadas', data:catLabels.map(c=>+byCat[c].capturadas.toFixed(1)), backgroundColor:'#040066', borderRadius:4, maxBarThickness:22}]},
+    options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{title:{display:true,text:'Horas'},grid:{color:'#e4e4e4'}},y:{grid:{display:false}}}}
   });
 
   const byPerson = Object.values(byPersonMap).sort((a,b)=>b.capturadas-a.capturadas);
-  const personRows = byPerson.map(p=>`
-    <tr>
-      <td>${esc(p.persona)}</td>
-      <td style="text-align:right">${p.tareas}</td>
-      <td style="text-align:right">${fmt(p.brutas)}h</td>
-      <td style="text-align:right">${fmt(p.capturadas)}h</td>
-      <td style="text-align:right">${p.hasWeekly ? fmt(p.weeklyCapturada)+'h/sem' : '<span class="pill">sin fechas</span>'}</td>
-    </tr>`).join('');
-  document.getElementById('personTableWrap').innerHTML = `
-    <div class="card">
-      <table><thead><tr><th>Persona</th><th style="text-align:right">Tareas</th><th style="text-align:right">H potenciales</th><th style="text-align:right">H ajustadas</th><th style="text-align:right">Ritmo semanal</th></tr></thead>
-      <tbody>${personRows}</tbody></table>
-    </div>`;
+  document.getElementById('personTableWrap').innerHTML = `<div class="card"><table><thead><tr><th>Persona</th><th style="text-align:right">Tareas</th><th style="text-align:right">H potenciales</th><th style="text-align:right">H ajustadas</th><th style="text-align:right">Ritmo/sem</th></tr></thead><tbody>${
+    byPerson.map(p=>`<tr><td>${esc(p.persona)}${p.legacy?' <span class="pill warn">legacy</span>':''}</td><td style="text-align:right">${p.tareas}</td><td style="text-align:right">${fmt(p.brutas)}h</td><td style="text-align:right">${fmt(p.capturadas)}h</td><td style="text-align:right">${p.hasWeekly?fmt(p.weeklyCapturada)+'h/sem':'<span class="pill">sin fechas</span>'}</td></tr>`).join('')
+  }</tbody></table></div>`;
 
   const subDetails = list.map(sub=>{
-    const subKey = 'submission:'+slug(sub.employee_id||sub.persona)+':'+slug(sub.fuente||'otro')+':'+slug((sub.fecha_inicio||'na')+'_'+(sub.fecha_fin||'na'));
+    const subKey = sub.firebase_uid ? ('contrib_'+slug(sub.firebase_uid)+'_'+slug(sub.fuente||'otro')+'_'+slug((sub.fecha_inicio||'na')+'_'+(sub.fecha_fin||'na')))
+                                     : ('submission:'+slug(sub.employee_id||sub.persona)+':'+slug(sub.fuente||'otro')+':'+slug((sub.fecha_inicio||'na')+'_'+(sub.fecha_fin||'na')));
     const rows = (sub.tareas||[]).map(t=>`
-      <tr data-sub-key="${esc(subKey)}" data-task-id="${esc(t.task_id)}">
-        <td>${esc(t.tarea)}</td>
-        <td>${esc(t.categoria)}</td>
-        <td>${esc(t.complejidad)}</td>
-        <td style="text-align:right">${fmt(t.horas_manual_base)}</td>
-        <td style="text-align:right">${fmt(t.horas_ia_total)}</td>
-        <td style="text-align:right">${fmt(t.horas_brutas)}</td>
-        <td style="text-align:right;font-weight:600">${fmt(t.horas_capturadas)}</td>
-        <td>${t.anomalia?'<span class="pill danger">IA&gt;manual</span>':''}${t.isControl?' <span class="pill">control (sin IA)</span>':''}${t.usedDefaults?' <span class="pill warn">factores por defecto</span>':''}</td>
-        <td><button class="row-del-btn" data-sub-key="${esc(subKey)}" data-task-id="${esc(t.task_id)}" title="Borrar esta tarea" aria-label="Borrar esta tarea">×</button></td>
+      <tr>
+        <td>${esc(t.tarea)}</td><td>${esc(t.categoria)}</td><td>${esc(t.complejidad)}</td>
+        <td style="text-align:right">${fmt(t.horas_manual_base)}</td><td style="text-align:right">${fmt(t.horas_ia_total)}</td>
+        <td style="text-align:right">${fmt(t.horas_brutas)}</td><td style="text-align:right;font-weight:600">${fmt(t.horas_capturadas)}</td>
+        <td>${t.anomalia?'<span class="pill danger">IA&gt;manual</span>':''}${t.usedDefaults?' <span class="pill warn">factores por defecto</span>':''}</td>
+        <td><button class="row-del-btn" data-sub-key="${esc(subKey)}" data-task-id="${esc(t.task_id)}">×</button></td>
       </tr>`).join('');
-    const cob = sub.cobertura;
-    const cobLine = cob ? `<p class="note" style="margin:0 0 10px">Cobertura declarada: ${esc(cob.periodo_cubierto||'—')}${cob.num_conversaciones_revisadas!=null?' · '+esc(cob.num_conversaciones_revisadas)+' conversaciones revisadas':''}${cob.tipo_acceso?' · acceso: '+esc(cob.tipo_acceso):''}${cob.lagunas?' · lagunas: '+esc(cob.lagunas):''}</p>` : '';
-    return `
-      <details>
-        <summary>${esc(sub.persona)} <span style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-          <span class="pill">${esc(sub.fuente||'sin fuente')}</span>${sub.seniority?'<span class="pill">'+esc(sub.seniority)+'</span>':''}<span class="pill">${(sub.tareas||[]).length} tareas</span>${sub.enviado_el?'<span class="pill">actualizado '+esc(new Date(sub.enviado_el).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}))+'</span>':''}
-          <button class="sub-del-btn" data-sub-key="${esc(subKey)}" data-sub-label="${esc(sub.persona+' — '+(sub.fuente||''))}" style="border:1px solid var(--j-red);color:var(--j-red);padding:3px 10px;font-size:11px;border-radius:20px;background:transparent;cursor:pointer">Borrar esta aportación</button>
-        </span></summary>
-        <div class="details-body">
-          ${cobLine}
-          <table><thead><tr><th>Tarea</th><th>Categoría</th><th>Complejidad</th><th style="text-align:right">H manual</th><th style="text-align:right">H IA</th><th style="text-align:right">H potenciales</th><th style="text-align:right">H ajustadas</th><th>Avisos</th><th></th></tr></thead>
-          <tbody>${rows}</tbody></table>
-        </div>
-      </details>`;
+    const legacyPill = !sub.firebase_uid ? '<span class="pill warn">legacy (employee_id)</span>' : '';
+    return `<details><summary>${esc(sub.persona)} <span style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="pill">${esc(sub.fuente||'sin fuente')}</span><span class="pill">${(sub.tareas||[]).length} tareas</span>${legacyPill}${sub.enviado_el?'<span class="pill">actualizado '+esc(new Date(sub.enviado_el).toLocaleDateString('es-ES'))+'</span>':''}
+      <button class="sub-del-btn" data-sub-key="${esc(subKey)}" style="border:1px solid var(--j-red);color:var(--j-red);padding:3px 10px;font-size:11px;border-radius:20px;background:transparent;cursor:pointer">Borrar aportación</button></span></summary>
+      <div class="details-body"><table><thead><tr><th>Tarea</th><th>Categoría</th><th>Complejidad</th><th style="text-align:right">H manual</th><th style="text-align:right">H IA</th><th style="text-align:right">H potenciales</th><th style="text-align:right">H ajustadas</th><th>Avisos</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
   }).join('<div style="height:10px"></div>');
   document.getElementById('submissionsWrap').innerHTML = subDetails;
 
-  document.querySelectorAll('.row-del-btn').forEach(btn=>{
-    btn.addEventListener('click', async (e)=>{
-      e.preventDefault();
-      const subKey = btn.dataset.subKey, taskId = btn.dataset.taskId;
-      const sub = submissions[subKey] || localStore[subKey];
-      if(!sub) return;
-      const t = (sub.tareas||[]).find(x=>x.task_id===taskId);
-      if(!confirm('¿Borrar la tarea "'+(t?t.tarea:taskId)+'"? Esta acción no se puede deshacer.')) return;
-      const updated = {...sub, tareas:(sub.tareas||[]).filter(x=>x.task_id!==taskId), enviado_el: new Date().toISOString()};
-      try{
-        if(db && storageOK) await db.ref('submissions/'+subKey).set(updated);
-        else { localStore[subKey] = updated; submissions = {...submissions, [subKey]: updated}; render(); }
-      }catch(err){ alert('No se ha podido borrar: '+err.message); }
+  document.querySelectorAll('.row-del-btn[data-task-id]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const subKey=btn.dataset.subKey, taskId=btn.dataset.taskId;
+      const sub = submissions[subKey]||localStore[subKey]; if(!sub) return;
+      if(!confirm('¿Borrar esta tarea?')) return;
+      const updated = {...sub, tareas:(sub.tareas||[]).filter(x=>x.task_id!==taskId), enviado_el:new Date().toISOString()};
+      try{ if(db&&storageOK) await db.ref('submissions/'+subKey).set(updated); else{ localStore[subKey]=updated; submissions={...submissions,[subKey]:updated}; render(); } }
+      catch(e){ alert('No se ha podido borrar: '+e.message); }
     });
   });
-
   document.querySelectorAll('.sub-del-btn').forEach(btn=>{
-    btn.addEventListener('click', async (e)=>{
-      e.preventDefault(); e.stopPropagation();
+    btn.addEventListener('click', async ()=>{
       const subKey = btn.dataset.subKey;
-      if(!confirm('¿Borrar TODA la aportación de "'+btn.dataset.subLabel+'" ('+((submissions[subKey]||{}).tareas||[]).length+' tareas)? Esta acción no se puede deshacer.')) return;
-      try{
-        if(db && storageOK) await db.ref('submissions/'+subKey).remove();
-        else { delete localStore[subKey]; submissions = {...submissions}; delete submissions[subKey]; render(); }
-      }catch(err){ alert('No se ha podido borrar: '+err.message); }
+      if(!confirm('¿Borrar TODA esta aportación?')) return;
+      try{ if(db&&storageOK) await db.ref('submissions/'+subKey).remove(); else{ delete localStore[subKey]; submissions={...submissions}; delete submissions[subKey]; render(); } }
+      catch(e){ alert('No se ha podido borrar: '+e.message); }
     });
   });
 
   renderScenarios();
 }
 
-const PRESETS = {
-  conservador: {fte:55, cap:37.5, elegible:25, adopcion:60, reduccion:45, captura:65},
-  base:        {fte:55, cap:37.5, elegible:35, adopcion:70, reduccion:55, captura:75},
-  alto:        {fte:55, cap:37.5, elegible:45, adopcion:80, reduccion:65, captura:80}
-};
+// ── Escenarios ───────────────────────────────────────────────────────────
+const PRESETS = { conservador:{fte:55,cap:37.5,elegible:25,adopcion:60,reduccion:45,captura:65}, base:{fte:55,cap:37.5,elegible:35,adopcion:70,reduccion:55,captura:75}, alto:{fte:55,cap:37.5,elegible:45,adopcion:80,reduccion:65,captura:80} };
 document.querySelectorAll('[data-preset]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
-    const p = PRESETS[btn.dataset.preset];
-    document.getElementById('scFte').value = p.fte;
-    document.getElementById('scCap').value = p.cap;
-    document.getElementById('scElegible').value = p.elegible;
-    document.getElementById('scAdopcion').value = p.adopcion;
-    document.getElementById('scReduccion').value = p.reduccion;
-    document.getElementById('scCaptura').value = p.captura;
+    const p=PRESETS[btn.dataset.preset];
+    document.getElementById('scFte').value=p.fte; document.getElementById('scCap').value=p.cap;
+    document.getElementById('scElegible').value=p.elegible; document.getElementById('scAdopcion').value=p.adopcion;
+    document.getElementById('scReduccion').value=p.reduccion; document.getElementById('scCaptura').value=p.captura;
     renderScenarios();
   });
 });
-['scFte','scCap','scElegible','scAdopcion','scReduccion','scCaptura'].forEach(id=>{
-  document.getElementById(id).addEventListener('input', renderScenarios);
-});
-
+['scFte','scCap','scElegible','scAdopcion','scReduccion','scCaptura'].forEach(id=>document.getElementById(id).addEventListener('input', renderScenarios));
 function renderScenarios(){
-  const fte = parseFloat(document.getElementById('scFte').value)||0;
-  const cap = parseFloat(document.getElementById('scCap').value)||37.5;
-  const elegible = (parseFloat(document.getElementById('scElegible').value)||0)/100;
-  const adopcion = (parseFloat(document.getElementById('scAdopcion').value)||0)/100;
-  const reduccion = (parseFloat(document.getElementById('scReduccion').value)||0)/100;
-  const captura = (parseFloat(document.getElementById('scCaptura').value)||0)/100;
-
-  const brutasSem = fte*cap*elegible;
-  const netasSem = brutasSem*adopcion*reduccion*captura;
-  const netasMes = netasSem*4.345;
-  const fteEq = cap>0 ? netasSem/cap : 0;
-  const pctCapacidad = fte>0 ? fteEq/fte : 0;
-
+  const fte=parseFloat(document.getElementById('scFte').value)||0, cap=parseFloat(document.getElementById('scCap').value)||37.5;
+  const elegible=(parseFloat(document.getElementById('scElegible').value)||0)/100, adopcion=(parseFloat(document.getElementById('scAdopcion').value)||0)/100;
+  const reduccion=(parseFloat(document.getElementById('scReduccion').value)||0)/100, captura=(parseFloat(document.getElementById('scCaptura').value)||0)/100;
+  const brutasSem=fte*cap*elegible, netasSem=brutasSem*adopcion*reduccion*captura, netasMes=netasSem*4.345;
+  const fteEq=cap>0?netasSem/cap:0, pctCapacidad=fte>0?fteEq/fte:0;
   document.getElementById('scenarioMetrics').innerHTML = `
     <div class="metric"><p class="label">H potenciales/sem</p><p class="val">${fmt(brutasSem)}</p></div>
     <div class="metric"><p class="label">H netas/sem</p><p class="val">${fmt(netasSem)}</p></div>
     <div class="metric"><p class="label">H netas/mes</p><p class="val">${fmt(netasMes)}</p></div>
     <div class="metric"><p class="label">FTE equivalente</p><p class="val">${fmt(fteEq)}</p></div>
-    <div class="metric"><p class="label">% capacidad equipo</p><p class="val">${fmtPct(pctCapacidad)}</p></div>
-  `;
+    <div class="metric"><p class="label">% capacidad equipo</p><p class="val">${fmtPct(pctCapacidad)}</p></div>`;
 }
 </script>
 </body>
