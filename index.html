@@ -241,6 +241,8 @@
         <button class="secondary" data-preset="conservador">Conservador</button>
         <button class="secondary" data-preset="base">Base</button>
         <button class="secondary" data-preset="alto">Alto</button>
+        <span style="width:1px;height:28px;background:var(--j-grey-2);margin:0 4px"></span>
+        <button class="secondary" id="scFromPilotBtn">Usar datos observados del piloto</button>
       </div>
       <div class="scenario-grid">
         <div><label>FTE elegibles</label><input type="number" id="scFte" value="55" min="0" step="1"></div>
@@ -250,8 +252,10 @@
         <div><label>% reducción tiempo</label><input type="number" id="scReduccion" value="55" min="0" max="100" step="1"></div>
         <div><label>% captura</label><input type="number" id="scCaptura" value="75" min="0" max="100" step="1"></div>
       </div>
+      <div id="scFromPilotMsg"></div>
       <div class="grid-metrics" id="scenarioMetrics"></div>
       <p class="note">Proyección = FTE elegibles × capacidad × % tareas elegibles × % adopción × % reducción de tiempo × % captura. No equivale a reducción de plantilla — es volumen de trabajo adicional absorbible con la misma plantilla.</p>
+      <p class="note"><b>FTE elegibles, % tareas elegibles y % adopción son siempre supuestos manuales</b> — no se pueden derivar de un piloto de <span id="scPilotSize">0</span> personas, describen a las ~75 del área. <b>% reducción tiempo y % captura sí pueden anclarse a lo observado</b>: el botón de arriba los calcula a partir del multiplicador real (1 − 1/multiplicador) y de la ratio H ajustadas / H potenciales del piloto actual, sustituyendo la suposición por el dato medido hasta ahora.</p>
     </div>
   </section>
 
@@ -1055,6 +1059,9 @@ function render(){
 
   const dupWarnings = Object.entries(dedupeMap).filter(([k,arr])=> new Set(arr.map(a=>a.fuente)).size>1);
   const multiplicador = sumIaAsist>0 ? sumManualAsist/sumIaAsist : 0;
+  const pctAjusteGlobal = totalBrutas>0 ? totalCapturadas/totalBrutas : 0;
+  pilotObservado = { multiplicador, pctAjusteGlobal, numPersonas: Object.keys(byPersonMap).length };
+  const el_scPilotSize = document.getElementById('scPilotSize'); if(el_scPilotSize) el_scPilotSize.textContent = pilotObservado.numPersonas;
   const capacidadEquipo = Object.values(byPersonMap).reduce((s,p)=>s+(p.capacidad||37.5),0);
   const pctCapturado = capacidadEquipo>0 ? weeklyCapturadaSum/capacidadEquipo : 0;
 
@@ -1139,6 +1146,7 @@ function render(){
 }
 
 // ── Escenarios ───────────────────────────────────────────────────────────
+let pilotObservado = { multiplicador: 0, pctAjusteGlobal: 0, numPersonas: 0 };
 const PRESETS = { conservador:{fte:55,cap:37.5,elegible:25,adopcion:60,reduccion:45,captura:65}, base:{fte:55,cap:37.5,elegible:35,adopcion:70,reduccion:55,captura:75}, alto:{fte:55,cap:37.5,elegible:45,adopcion:80,reduccion:65,captura:80} };
 document.querySelectorAll('[data-preset]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
@@ -1146,8 +1154,23 @@ document.querySelectorAll('[data-preset]').forEach(btn=>{
     document.getElementById('scFte').value=p.fte; document.getElementById('scCap').value=p.cap;
     document.getElementById('scElegible').value=p.elegible; document.getElementById('scAdopcion').value=p.adopcion;
     document.getElementById('scReduccion').value=p.reduccion; document.getElementById('scCaptura').value=p.captura;
+    document.getElementById('scFromPilotMsg').innerHTML = '';
     renderScenarios();
   });
+});
+document.getElementById('scFromPilotBtn').addEventListener('click', ()=>{
+  const msgEl = document.getElementById('scFromPilotMsg');
+  if(!pilotObservado.multiplicador || pilotObservado.numPersonas===0){
+    msgEl.innerHTML = '<div class="msg warn">Aún no hay datos suficientes del piloto para derivar estos parámetros.</div>';
+    return;
+  }
+  const reduccionPct = Math.round((1 - 1/pilotObservado.multiplicador)*100);
+  const capturaPct = Math.round(pilotObservado.pctAjusteGlobal*100);
+  document.getElementById('scReduccion').value = reduccionPct;
+  document.getElementById('scCaptura').value = capturaPct;
+  msgEl.innerHTML = '<div class="msg ok">Rellenado con datos reales de '+pilotObservado.numPersonas+' persona'+(pilotObservado.numPersonas===1?'':'s')+
+    ': % reducción tiempo = '+reduccionPct+'% (de un multiplicador de '+fmt(pilotObservado.multiplicador)+'x), % captura = '+capturaPct+'% (H ajustadas / H potenciales). FTE, % elegibles y % adopción siguen siendo supuestos tuyos.</div>';
+  renderScenarios();
 });
 ['scFte','scCap','scElegible','scAdopcion','scReduccion','scCaptura'].forEach(id=>document.getElementById(id).addEventListener('input', renderScenarios));
 function renderScenarios(){
