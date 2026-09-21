@@ -549,11 +549,11 @@ MI PERFIL (ya identificado — no lo repitas ni lo pidas, solo úsalo como conte
 
 REGLAS DE IDENTIFICACIÓN
 1. Analiza solo conversaciones profesionales dentro del periodo indicado. No incluyas conversaciones personales.
-2. Cuenta TAREAS o entregables, no chats ni prompts: una conversación puede contener varias tareas (sepáralas); una tarea puede ocupar varias conversaciones (consolídalas); varias iteraciones del mismo entregable son UNA tarea, incluyendo revisión y retrabajo.
+2. Cuenta TAREAS o entregables, no chats ni prompts: una conversación puede contener varias tareas (sepáralas); una tarea puede ocupar varias conversaciones (consolídalas); varias iteraciones del mismo entregable son UNA tarea, incluyendo revisión y retrabajo. Si dentro de un mismo chat respondes a varias preguntas rápidas sobre el mismo tema sin que ninguna produzca un entregable propio (ej. explicar qué es una función, aclarar un concepto, resolver una duda puntual), agrúpalas en UNA sola tarea tipo "sesión de consultas rápidas sobre X" — no crees una tarea por cada pregunta suelta.
 3. Incluye también tareas fallidas, descartadas o con retrabajo importante — no selecciones solo los éxitos.
 4. No inventes conversaciones, tareas, fechas ni tiempos. Si no tienes evidencia suficiente para un campo, usa null.
 5. Evita duplicidades: no cuentes la misma tarea dos veces aunque aparezca en varias conversaciones.
-6. Genera work_item_key para cada tarea (para detectar si aparece también en otra plataforma): normaliza "proyecto+entregable+mes aproximado" en minúsculas sin espacios raros, ej. "italfarmaco-informe-mensual-2026-08".
+6. Genera SIEMPRE un work_item_key para cada tarea, sin excepción (para detectar si aparece también en otra plataforma): normaliza "proyecto+entregable+mes aproximado" en minúsculas sin espacios raros, ej. "italfarmaco-informe-mensual-2026-08". No dejes este campo vacío ni null bajo ningún concepto.
 
 CATEGORÍAS (usa exactamente una): ${CATEGORIAS.join(', ')}
 MODALIDADES (usa exactamente una): ${MODALIDADES.join(', ')}
@@ -745,6 +745,7 @@ function classifyTask(t, profile, batchKeys){
   }
   if(t.output_adicional_verificado && !t.capture_evidence) amber.push('Marcado como verificado pero sin evidencia de captura.');
   if(!t.evidencia && !t.descripcion) amber.push('Sin evidencia ni descripción.');
+  if(!t.work_item_key) amber.push('Sin work_item_key — no se podrán detectar duplicados de esta tarea entre fuentes distintas.');
   if(t.work_item_key && batchKeys[t.work_item_key] > 1) amber.push('Misma work_item_key que otra tarea de este envío — posible duplicado.');
   if(amber.length>0) return {tier:'ambar', reasons:amber};
   return {tier:'verde', reasons:[]};
@@ -810,6 +811,7 @@ function renderReview(){
         <div><label>Complejidad</label>
           <select data-idx="${idx}" data-field="complejidad">${['Baja','Media','Media-Alta','Alta'].map(c=>'<option'+(c===t.complejidad?' selected':'')+'>'+c+'</option>').join('')}</select>
         </div>
+        <div><label>work_item_key</label><input type="text" placeholder="proyecto-entregable-mes" value="${esc(t.work_item_key||'')}" data-idx="${idx}" data-field="work_item_key"></div>
       </div>
       <button class="secondary" style="margin-top:8px;padding:5px 12px;font-size:12px" data-exclude-idx="${idx}">Excluir esta tarea</button>
     </div>`;
