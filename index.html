@@ -155,6 +155,7 @@
   <section id="reviewSection" style="display:none">
     <h2><span class="n">3</span>Revisión antes de enviar</h2>
     <div class="card">
+      <div id="periodMismatchBanner"></div>
       <div id="reviewSummary" style="margin-bottom:14px"></div>
       <div id="reviewGreenBlock" style="margin-bottom:16px"></div>
       <div id="reviewIssuesBlock"></div>
@@ -770,10 +771,41 @@ document.getElementById('parseJsonBtn').addEventListener('click', ()=>{
   parsedTareasPendientes = normalized.map(t=>({...t, ...classifyTask(t, currentProfile, batchKeys)}));
   parsedCoberturaPendiente = obj.cobertura || null;
 
+  checkPeriodMismatch();
+
   renderReview();
   document.getElementById('reviewSection').style.display = 'block';
   document.getElementById('reviewSection').scrollIntoView({behavior:'smooth'});
 });
+
+function checkPeriodMismatch(){
+  const fechas = parsedTareasPendientes.map(t=>t.fecha_inicio_tarea).filter(Boolean).sort();
+  document.getElementById('periodMismatchBanner').innerHTML = '';
+  if(fechas.length===0 || !periodo.inicio) return;
+  const evidenciaInicio = fechas[0];
+  const diffDias = (new Date(evidenciaInicio) - new Date(periodo.inicio))/(1000*60*60*24);
+  if(diffDias <= 10) return; // sin desfase relevante
+
+  const banner = document.getElementById('periodMismatchBanner');
+  banner.innerHTML = `
+    <div class="msg warn">
+      Declaraste el periodo desde <b>${esc(periodo.inicio)}</b>, pero la tarea más antigua que ha
+      encontrado la IA es del <b>${esc(evidenciaInicio)}</b> (${Math.round(diffDias)} días después).
+      Si mantienes el periodo declarado, tu ritmo semanal saldrá artificialmente bajo (se divide entre
+      semanas en las que no hay ninguna tarea real).
+      <div style="margin-top:8px"><button class="secondary" id="fixPeriodBtn" style="padding:6px 14px;font-size:12.5px">Corregir periodo a ${esc(evidenciaInicio)}</button></div>
+    </div>`;
+  document.getElementById('fixPeriodBtn').addEventListener('click', ()=>{
+    const totalSemanasAntes = periodo.semanas_periodo || weeksBetween(periodo.inicio, periodo.fin);
+    const ratioTrabajado = (periodo.semanas!=null && totalSemanasAntes>0) ? (periodo.semanas/totalSemanasAntes) : 1;
+    periodo.inicio = evidenciaInicio;
+    document.getElementById('periodoInicio').value = evidenciaInicio;
+    periodo.semanas_periodo = weeksBetween(periodo.inicio, periodo.fin);
+    periodo.semanas = +(periodo.semanas_periodo*ratioTrabajado).toFixed(1);
+    periodo.weeks_source = 'ajustado_por_evidencia_tareas';
+    banner.innerHTML = '<div class="msg ok">Periodo corregido a partir de la evidencia de las tareas ('+esc(evidenciaInicio)+' → '+esc(periodo.fin)+', '+fmt(periodo.semanas_periodo,1)+' semanas, '+fmt(periodo.semanas,1)+' semanas trabajadas manteniendo tu proporción declarada).</div>';
+  });
+}
 
 function renderReview(){
   const verdes = parsedTareasPendientes.filter(t=>t.tier==='verde');
