@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Capacidad incremental con IA — Digital & Media</title>
+<title>Impacto actual y potencial del uso de IA — Digital & Media</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
@@ -92,7 +92,7 @@
 <div id="loginScreen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Raleway',sans-serif;background:#f5f5f5">
   <div style="background:#fff;border:1px solid #e4e4e4;border-radius:10px;padding:32px;max-width:360px;width:90%;text-align:center">
     <p style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#f00a0a;font-weight:700;margin:0 0 6px">Digital &amp; Media · JAKALA</p>
-    <h1 style="font-family:'Merriweather',serif;font-size:20px;color:#040066;margin:0 0 20px">Capacidad incremental con IA</h1>
+    <h1 style="font-family:'Merriweather',serif;font-size:20px;color:#040066;margin:0 0 20px">Impacto actual y potencial del uso de IA</h1>
     <input type="email" id="loginEmail" placeholder="Email" style="width:100%;padding:10px 12px;border:1px solid #e4e4e4;border-radius:8px;margin-bottom:10px;font-family:inherit;font-size:14px;box-sizing:border-box">
     <input type="password" id="loginPassword" placeholder="Contraseña" style="width:100%;padding:10px 12px;border:1px solid #e4e4e4;border-radius:8px;margin-bottom:14px;font-family:inherit;font-size:14px;box-sizing:border-box">
     <button id="loginBtn" style="width:100%;background:#040066;color:#fff;border:none;border-radius:8px;padding:11px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">Iniciar sesión</button>
@@ -108,8 +108,8 @@
     <p class="eyebrow">Digital &amp; Media · JAKALA</p>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
       <div>
-        <h1>Capacidad incremental con IA</h1>
-        <p class="sub">Modelo de tareas (no sesiones): separa capacidad potencial de capacidad ajustada, con factores de confianza, calidad y reinversión.</p>
+        <h1>Impacto actual y potencial del uso de IA</h1>
+        <p class="sub">Medición basada en tareas: cuantifica el ahorro generado actualmente y proyecta el potencial de escala en el equipo.</p>
       </div>
       <button class="secondary" id="logoutBtn" style="white-space:nowrap;padding:8px 16px;font-size:12.5px">Cerrar sesión</button>
     </div>
@@ -185,18 +185,19 @@
     <p style="font-size:12px;color:var(--j-grey-3);margin:0 0 14px;line-height:1.5">Referencia externa: a nivel de compañía, JAKALA + Claude reporta ciclos de optimización de campaña de 5-7 días a &lt;24h y ~70% del tiempo senior redirigido de trabajo sistemático a trabajo de mayor criterio (<a href="https://claude.com/customers/jakala" target="_blank" rel="noopener" style="color:var(--j-blue)">caso publicado en claude.com/customers/jakala</a>). Este dashboard mide si esa proporción se sostiene a nivel de tarea individual en Digital &amp; Media.</p>
     <div id="execSummary" style="font-size:15px;color:var(--j-black);margin:0 0 14px;line-height:1.6"></div>
     <div class="grid-metrics" id="teamMetrics"></div>
-    <p class="note" style="background:var(--j-grey-1);border-left:3px solid var(--j-blue);border-radius:0 8px 8px 0;padding:10px 14px;color:var(--j-black);font-size:12.5px">La capacidad potencial refleja el tiempo teóricamente liberado por la IA. La capacidad ajustada aplica correctores de confianza, calidad y reinversión para ofrecer una estimación más prudente. No equivale a ahorro económico ni a output adicional demostrado.</p>
+    <p class="note" style="background:var(--j-grey-1);border-left:3px solid var(--j-blue);border-radius:0 8px 8px 0;padding:10px 14px;color:var(--j-black);font-size:12.5px">El ahorro bruto representa la diferencia estimada entre el tiempo que habría requerido cada tarea sin IA y el tiempo empleado con IA. El ahorro ponderado aplica factores de confianza, calidad y reinversión verificable para ofrecer una estimación más prudente. Estas métricas representan capacidad productiva liberada: no equivalen directamente a ahorro económico, reducción de costes o reducción de plantilla.</p>
     <details style="margin-top:10px">
-      <summary style="font-size:12.5px">Leyenda — qué significa cada métrica</summary>
+      <summary style="font-size:12.5px">Leyenda — cómo interpretar cada métrica</summary>
       <div class="details-body">
         <table>
           <tbody>
-            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">Tareas registradas</td><td>Número de tareas subidas por el equipo en el periodo analizado.</td></tr>
-            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">Multiplicador</td><td>Cuántas veces más rápido se completa una tarea con IA que sin ella, en las tareas donde hubo asistencia (horas manuales ÷ horas con IA).</td></tr>
-            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">H potenciales</td><td><b>No</b> es el tiempo disponible de nadie. Es la diferencia entre lo que costaría cada tarea sin IA y lo que ha costado con IA (horas manuales − horas con IA), sumada en todas las tareas. Es el hueco teórico que abre la IA — antes de aplicar ningún descuento de prudencia.</td></tr>
-            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">H ajustadas</td><td><b>No</b> es el tiempo que ha llevado la tarea con IA (eso es un dato de entrada aparte, no se muestra aquí). Es la H potencial de cada tarea corregida por tres factores: confianza en la estimación, calidad real del resultado, y si ese tiempo liberado se reinvirtió en algo verificable. Siempre es menor que H potenciales.</td></tr>
-            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">Ajustada/sem (tareas)</td><td>H ajustadas totales del equipo dividido entre las semanas efectivamente trabajadas declaradas por cada persona. Es un ritmo, no un acumulado.</td></tr>
-            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">+ Recurrente/sem</td><td>Bloque totalmente aparte (sección 7): tiempo que automatizaciones ya construidas siguen ahorrando cada semana, sin que nadie tenga que reportarlo. No se mezcla con el cálculo de tareas.</td></tr>
+            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">Tareas registradas</td><td>Número de tareas realizadas con asistencia de IA y registradas por el equipo durante el periodo analizado.</td></tr>
+            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">Multiplicador</td><td>Indica cuántas veces más rápido se completa una tarea con IA respecto a su tiempo estimado de ejecución sin IA. Se calcula dividiendo las horas estimadas sin IA entre las horas empleadas con IA.</td></tr>
+            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">Ahorro bruto</td><td>Diferencia entre las horas estimadas sin IA y las horas empleadas con IA, acumulada en todas las tareas registradas. Representa el ahorro inicial estimado antes de aplicar factores de prudencia. No es tiempo disponible ni ahorro económico.</td></tr>
+            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">Ahorro ponderado</td><td>Parte del ahorro bruto que se mantiene después de ponderar la confianza en la estimación inicial, la calidad del resultado y la reinversión verificable del tiempo liberado. Es una estimación prudente del ahorro generado por las tareas registradas.</td></tr>
+            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">Ahorro actual/sem</td><td>Ahorro ponderado total dividido entre las semanas efectivamente trabajadas declaradas por cada persona. Representa el ritmo semanal estimado de ahorro en la muestra analizada, no un acumulado ni una proyección de todo el equipo.</td></tr>
+            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">Ahorro recurrente/sem</td><td>Tiempo que las automatizaciones activas siguen liberando cada semana una vez puestas en funcionamiento. Se calcula de forma independiente al ahorro registrado en tareas y no incluye automatizaciones todavía en desarrollo.</td></tr>
+            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">% captura</td><td>Porcentaje del ahorro bruto que se convierte en ahorro ponderado después de aplicar los factores de confianza, calidad y reinversión.</td></tr>
           </tbody>
         </table>
       </div>
@@ -206,7 +207,7 @@
   <section>
     <h2><span class="n">6</span>Por categoría</h2>
     <div class="card">
-      <div class="chart-box"><canvas id="catChart" role="img" aria-label="Horas potenciales y ajustadas por categoría de tarea"></canvas></div>
+      <div class="chart-box"><canvas id="catChart" role="img" aria-label="Ahorro bruto y ahorro ponderado por categoría de tarea"></canvas></div>
     </div>
     <div id="catTableWrap" style="margin-top:12px"></div>
   </section>
@@ -254,7 +255,7 @@
   </section>
 
   <section>
-    <h2><span class="n">8</span>Escenarios de equipo (proyección)</h2>
+    <h2><span class="n">8</span>Escenarios de ahorro potencial</h2>
     <div class="card">
       <div class="preset-btns">
         <button class="secondary" data-preset="conservador">Conservador</button>
@@ -273,8 +274,9 @@
       </div>
       <div id="scFromPilotMsg"></div>
       <div class="grid-metrics" id="scenarioMetrics"></div>
-      <p class="note">Proyección = FTE elegibles × capacidad × % tareas elegibles × % adopción × % reducción de tiempo × % captura. No equivale a reducción de plantilla — es volumen de trabajo adicional absorbible con la misma plantilla.</p>
-      <p class="note"><b>FTE elegibles, % tareas elegibles y % adopción son siempre supuestos manuales</b> — no se pueden derivar de un piloto de <span id="scPilotSize">0</span> personas, describen a las ~75 del área. <b>% reducción tiempo y % captura sí pueden anclarse a lo observado</b>: el botón de arriba los calcula a partir del multiplicador real (1 − 1/multiplicador) y de la ratio H ajustadas / H potenciales del piloto actual, sustituyendo la suposición por el dato medido hasta ahora.</p>
+      <p class="note">Horas elegibles/sem = FTE elegibles × capacidad semanal × % de tareas elegibles.<br>Ahorro potencial/sem = horas elegibles × % de adopción × % de reducción de tiempo × % de captura.</p>
+      <p class="note">El ahorro potencial representa capacidad adicional que podría liberarse si se cumplen los supuestos seleccionados. No equivale a una reducción de plantilla, sino a mayor volumen de trabajo absorbible o a más tiempo disponible para actividades de mayor valor.</p>
+      <p class="note"><b>Los FTE elegibles, el porcentaje de tareas elegibles y la adopción son supuestos manuales</b> definidos para el equipo analizado (piloto actual: <span id="scPilotSize">0</span> personas; describen a las ~75 del área). <b>La reducción de tiempo y la captura pueden configurarse manualmente o calcularse a partir de los datos observados en el piloto.</b> En ese caso, la reducción de tiempo se obtiene del multiplicador registrado y la captura se calcula como la relación entre el ahorro ponderado y el ahorro bruto.</p>
     </div>
   </section>
 
@@ -848,7 +850,7 @@ function renderReview(){
     <details>
       <summary>${verdes.length} tarea${verdes.length===1?'':'s'} listas para confirmar en bloque <span class="pill">sin problemas detectados</span></summary>
       <div class="details-body"><ul style="margin:8px 0 0;padding-left:18px;font-size:12.5px">
-        ${verdes.map(t=>'<li>'+esc(t.tarea)+' — '+esc(t.categoria)+' ('+fmt(t.horas_capturadas)+'h ajustadas)</li>').join('')}
+        ${verdes.map(t=>'<li>'+esc(t.tarea)+' — '+esc(t.categoria)+' ('+fmt(t.horas_capturadas)+'h ahorro ponderado)</li>').join('')}
       </ul></div>
     </details>` : '<p class="note">Ninguna tarea verde en este envío.</p>';
 
@@ -862,8 +864,8 @@ function renderReview(){
       </div>
       <p class="note" style="margin:0 0 8px">${t.reasons.map(esc).join(' · ')}</p>
       <div class="row" style="margin-bottom:0">
-        <div><label>H manual</label><input type="number" step="0.25" min="0" value="${t.horas_manual_base??''}" data-idx="${idx}" data-field="horas_manual_base"></div>
-        <div><label>H IA</label><input type="number" step="0.25" min="0" value="${t.horas_ia_total??''}" data-idx="${idx}" data-field="horas_ia_total"></div>
+        <div><label>Horas estimadas sin IA</label><input type="number" step="0.25" min="0" value="${t.horas_manual_base??''}" data-idx="${idx}" data-field="horas_manual_base"></div>
+        <div><label>Horas empleadas con IA</label><input type="number" step="0.25" min="0" value="${t.horas_ia_total??''}" data-idx="${idx}" data-field="horas_ia_total"></div>
         <div><label>Categoría</label>
           <select data-idx="${idx}" data-field="categoria">${CATEGORIAS.map(c=>'<option'+(c===t.categoria?' selected':'')+'>'+esc(c)+'</option>').join('')}</select>
         </div>
@@ -1135,36 +1137,34 @@ function render(){
 
   const numPersonas = Object.keys(byPersonMap).length;
   const filterNote = (filterPersonas.size>0||filterFuentes.size>0||filterPlataformas.size>0) ? ' (con el filtro aplicado)' : '';
-  const topCat = Object.entries(byCat).sort((a,b)=>b[1].capturadas-a[1].capturadas)[0];
-  const autoNote = autoTotals.weeklyTotal>0 ? ` A eso se suman <b>${fmt(autoTotals.weeklyTotal)}h/semana</b> recurrentes de automatizaciones activas (${fmt(autoTotals.cumTotal)}h acumuladas).` : '';
+  const autoNote = autoTotals.weeklyTotal>0 ? ` A este impacto se añaden <b>${fmt(autoTotals.weeklyTotal)}h semanales</b> generadas por automatizaciones activas, con <b>${fmt(autoTotals.cumTotal)}h acumuladas</b> hasta la fecha.` : '';
   document.getElementById('execSummary').innerHTML =
-    `Con <b>${totalTareas} tareas</b> de <b>${numPersonas} persona${numPersonas===1?'':'s'}</b>${filterNote}, el trabajo asistido avanza a <b>${fmt(multiplicador)}x</b> más rápido que sin IA. `+
-    `Ajustado, son <b>${fmt(weeklyCapturadaSum)}h/semana</b> (${fmtPct(pctCapturado)} de la capacidad analizada)`+
-    (topCat?`, sobre todo en <b>${esc(topCat[0])}</b>.`:'.')+autoNote;
+    `Con <b>${totalTareas} tareas</b> registradas por <b>${numPersonas} persona${numPersonas===1?'':'s'}</b>${filterNote}, el trabajo asistido se completa <b>${fmt(multiplicador)}x</b> más rápido que la estimación de ejecución sin IA. `+
+    `Tras aplicar factores de confianza, calidad y reinversión, las tareas registradas generan un ahorro actual estimado de <b>${fmt(weeklyCapturadaSum)}h por semana</b>, equivalente al ${fmtPct(pctCapturado)} de la capacidad analizada.`+autoNote;
 
   teamMetrics.innerHTML = dupBanner + `
     <div class="metric"><p class="label">Tareas registradas</p><p class="val">${totalTareas}</p></div>
     <div class="metric"><p class="label">Multiplicador</p><p class="val">${fmt(multiplicador)}x</p></div>
-    <div class="metric"><p class="label">H potenciales</p><p class="val">${fmt(totalBrutas)}</p></div>
-    <div class="metric"><p class="label">H ajustadas</p><p class="val">${fmt(totalCapturadas)}</p></div>
-    <div class="metric"><p class="label">Ajustada/sem (tareas)</p><p class="val">${fmt(weeklyCapturadaSum)}h</p></div>
-    <div class="metric"><p class="label">+ Recurrente/sem</p><p class="val">${fmt(autoTotals.weeklyTotal)}h</p></div>`;
+    <div class="metric"><p class="label">Ahorro bruto</p><p class="val">${fmt(totalBrutas)}h</p></div>
+    <div class="metric"><p class="label">Ahorro ponderado</p><p class="val">${fmt(totalCapturadas)}h</p></div>
+    <div class="metric"><p class="label">Ahorro actual/sem</p><p class="val">${fmt(weeklyCapturadaSum)}h</p></div>
+    <div class="metric"><p class="label">Ahorro recurrente/sem</p><p class="val">${fmt(autoTotals.weeklyTotal)}h</p></div>`;
 
   const catRows = Object.entries(byCat).sort((a,b)=>b[1].capturadas-a[1].capturadas).map(([cat,d])=>`
     <tr><td>${esc(cat)}</td><td style="text-align:right">${fmt(d.brutas)}h</td><td style="text-align:right">${fmt(d.capturadas)}h</td><td style="text-align:right">${fmt(median(d.valores))}h</td><td style="text-align:right">${d.brutas>0?fmtPct(d.capturadas/d.brutas):'—'}</td></tr>`).join('');
-  document.getElementById('catTableWrap').innerHTML = `<div class="card"><table><thead><tr><th>Categoría</th><th style="text-align:right">H potenciales</th><th style="text-align:right">H ajustadas</th><th style="text-align:right">Mediana</th><th style="text-align:right">% ajuste</th></tr></thead><tbody>${catRows}</tbody></table></div>`;
+  document.getElementById('catTableWrap').innerHTML = `<div class="card"><table><thead><tr><th>Categoría</th><th style="text-align:right">Ahorro bruto</th><th style="text-align:right">Ahorro ponderado</th><th style="text-align:right">Mediana</th><th style="text-align:right">% captura</th></tr></thead><tbody>${catRows}</tbody></table></div>`;
 
   const catLabels = Object.keys(byCat);
   if(catChart) catChart.destroy();
   catChart = new Chart(document.getElementById('catChart'), {
     type:'bar', data:{labels:catLabels, datasets:[
-      {label:'H potenciales', data:catLabels.map(c=>+byCat[c].brutas.toFixed(1)), backgroundColor:'#c3c2b7', borderRadius:4, maxBarThickness:22},
-      {label:'H ajustadas', data:catLabels.map(c=>+byCat[c].capturadas.toFixed(1)), backgroundColor:'#040066', borderRadius:4, maxBarThickness:22}]},
+      {label:'Ahorro bruto', data:catLabels.map(c=>+byCat[c].brutas.toFixed(1)), backgroundColor:'#c3c2b7', borderRadius:4, maxBarThickness:22},
+      {label:'Ahorro ponderado', data:catLabels.map(c=>+byCat[c].capturadas.toFixed(1)), backgroundColor:'#040066', borderRadius:4, maxBarThickness:22}]},
     options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{title:{display:true,text:'Horas'},grid:{color:'#e4e4e4'}},y:{grid:{display:false}}}}
   });
 
   const byPerson = Object.values(byPersonMap).sort((a,b)=>b.capturadas-a.capturadas);
-  document.getElementById('personTableWrap').innerHTML = `<div class="card"><table><thead><tr><th>Persona</th><th style="text-align:right">Tareas</th><th style="text-align:right">H potenciales</th><th style="text-align:right">H ajustadas</th><th style="text-align:right">Ritmo/sem</th></tr></thead><tbody>${
+  document.getElementById('personTableWrap').innerHTML = `<div class="card"><table><thead><tr><th>Persona</th><th style="text-align:right">Tareas</th><th style="text-align:right">Ahorro bruto</th><th style="text-align:right">Ahorro ponderado</th><th style="text-align:right">Ahorro actual/sem</th></tr></thead><tbody>${
     byPerson.map(p=>`<tr><td>${esc(p.persona)}${p.legacy?' <span class="pill warn">legacy</span>':''}</td><td style="text-align:right">${p.tareas}</td><td style="text-align:right">${fmt(p.brutas)}h</td><td style="text-align:right">${fmt(p.capturadas)}h</td><td style="text-align:right">${p.hasWeekly?fmt(p.weeklyCapturada)+'h/sem':'<span class="pill">sin fechas</span>'}</td></tr>`).join('')
   }</tbody></table></div>`;
 
@@ -1182,7 +1182,7 @@ function render(){
     const legacyPill = !sub.firebase_uid ? '<span class="pill warn">legacy (employee_id)</span>' : '';
     return `<details><summary>${esc(sub.persona)} <span style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="pill">${esc(sub.fuente||'sin fuente')}</span><span class="pill">${(sub.tareas||[]).length} tareas</span>${legacyPill}${sub.enviado_el?'<span class="pill">actualizado '+esc(new Date(sub.enviado_el).toLocaleDateString('es-ES'))+'</span>':''}
       <button class="sub-del-btn" data-sub-key="${esc(subKey)}" style="border:1px solid var(--j-red);color:var(--j-red);padding:3px 10px;font-size:11px;border-radius:20px;background:transparent;cursor:pointer">Borrar aportación</button></span></summary>
-      <div class="details-body"><table><thead><tr><th>Tarea</th><th>Categoría</th><th>Complejidad</th><th style="text-align:right">H manual</th><th style="text-align:right">H IA</th><th style="text-align:right">H potenciales</th><th style="text-align:right">H ajustadas</th><th>Avisos</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
+      <div class="details-body"><table><thead><tr><th>Tarea</th><th>Categoría</th><th>Complejidad</th><th style="text-align:right">Horas estimadas sin IA</th><th style="text-align:right">Horas empleadas con IA</th><th style="text-align:right">Ahorro bruto</th><th style="text-align:right">Ahorro ponderado</th><th>Avisos</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
   }).join('<div style="height:10px"></div>');
   document.getElementById('submissionsWrap').innerHTML = subDetails;
 
@@ -1232,7 +1232,7 @@ document.getElementById('scFromPilotBtn').addEventListener('click', ()=>{
   document.getElementById('scReduccion').value = reduccionPct;
   document.getElementById('scCaptura').value = capturaPct;
   msgEl.innerHTML = '<div class="msg ok">Rellenado con datos reales de '+pilotObservado.numPersonas+' persona'+(pilotObservado.numPersonas===1?'':'s')+
-    ': % reducción tiempo = '+reduccionPct+'% (de un multiplicador de '+fmt(pilotObservado.multiplicador)+'x), % captura = '+capturaPct+'% (H ajustadas / H potenciales). FTE, % elegibles y % adopción siguen siendo supuestos tuyos.</div>';
+    ': % reducción tiempo = '+reduccionPct+'% (de un multiplicador de '+fmt(pilotObservado.multiplicador)+'x), % captura = '+capturaPct+'% (Ahorro ponderado / Ahorro bruto). FTE, % elegibles y % adopción siguen siendo supuestos tuyos.</div>';
   renderScenarios();
 });
 ['scFte','scCap','scElegible','scAdopcion','scReduccion','scCaptura'].forEach(id=>document.getElementById(id).addEventListener('input', renderScenarios));
@@ -1243,11 +1243,11 @@ function renderScenarios(){
   const brutasSem=fte*cap*elegible, netasSem=brutasSem*adopcion*reduccion*captura, netasMes=netasSem*4.345;
   const fteEq=cap>0?netasSem/cap:0, pctCapacidad=fte>0?fteEq/fte:0;
   document.getElementById('scenarioMetrics').innerHTML = `
-    <div class="metric"><p class="label">H potenciales/sem</p><p class="val">${fmt(brutasSem)}</p></div>
-    <div class="metric"><p class="label">H netas/sem</p><p class="val">${fmt(netasSem)}</p></div>
-    <div class="metric"><p class="label">H netas/mes</p><p class="val">${fmt(netasMes)}</p></div>
-    <div class="metric"><p class="label">FTE equivalente</p><p class="val">${fmt(fteEq)}</p></div>
-    <div class="metric"><p class="label">% capacidad equipo</p><p class="val">${fmtPct(pctCapacidad)}</p></div>`;
+    <div class="metric"><p class="label">Horas elegibles/sem</p><p class="val">${fmt(brutasSem)}</p></div>
+    <div class="metric"><p class="label">Ahorro potencial/sem</p><p class="val">${fmt(netasSem)}</p></div>
+    <div class="metric"><p class="label">Ahorro potencial/mes</p><p class="val">${fmt(netasMes)}</p></div>
+    <div class="metric"><p class="label">Capacidad equivalente (FTE)</p><p class="val">${fmt(fteEq)}</p></div>
+    <div class="metric"><p class="label">% capacidad liberable</p><p class="val">${fmtPct(pctCapacidad)}</p></div>`;
 }
 </script>
 </body>
