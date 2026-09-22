@@ -172,6 +172,9 @@
     <div class="card">
       <p style="margin:0 0 10px;font-size:12.5px;color:var(--j-grey-3)">Aplica a todo el análisis de abajo. Sin selección = todo el equipo.</p>
       <div id="filterPersonas" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px"></div>
+      <p style="margin:0 0 6px;font-size:11px;color:var(--j-grey-3);text-transform:uppercase;letter-spacing:.04em">Plataforma</p>
+      <div id="filterPlataformas" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px"></div>
+      <p style="margin:0 0 6px;font-size:11px;color:var(--j-grey-3);text-transform:uppercase;letter-spacing:.04em">Fuente (personal / corporativo)</p>
       <div id="filterFuentes" style="display:flex;flex-wrap:wrap;gap:8px"></div>
       <button class="secondary" id="filterResetBtn" style="margin-top:12px;padding:6px 14px;font-size:12.5px">Quitar filtros</button>
     </div>
@@ -313,6 +316,15 @@ let localAutoStore = {};
 let storageOK = false;
 let filterPersonas = new Set();
 let filterFuentes = new Set();
+let filterPlataformas = new Set();
+
+function platformOf(fuente){
+  const f = (fuente||'').toLowerCase();
+  if(f.includes('claude')) return 'Claude';
+  if(f.includes('copilot')) return 'Copilot';
+  if(f.includes('chatgpt') || f.includes('openai')) return 'ChatGPT';
+  return fuente || 'Otro';
+}
 
 let directory = {};           // cargado desde Firebase /directory tras login
 let currentProfile = null;    // { key, nombre, email, departamento, equipo, puesto }
@@ -1024,24 +1036,26 @@ function renderFilters(){
   const all = Object.values(submissions);
   const personas = [...new Set(all.map(s=>s.persona))].sort();
   const fuentes = [...new Set(all.map(s=>s.fuente).filter(Boolean))].sort();
+  const plataformas = [...new Set(all.map(s=>platformOf(s.fuente)).filter(Boolean))].sort();
   document.getElementById('filterPersonas').innerHTML = personas.map(p=>`<button class="filter-chip${filterPersonas.has(p)?' active':''}" data-kind="persona" data-val="${esc(p)}">${esc(p)}</button>`).join('');
+  document.getElementById('filterPlataformas').innerHTML = plataformas.map(p=>`<button class="filter-chip${filterPlataformas.has(p)?' active':''}" data-kind="plataforma" data-val="${esc(p)}">${esc(p)}</button>`).join('');
   document.getElementById('filterFuentes').innerHTML = fuentes.map(f=>`<button class="filter-chip${filterFuentes.has(f)?' active':''}" data-kind="fuente" data-val="${esc(f)}">${esc(f)}</button>`).join('');
   document.querySelectorAll('.filter-chip').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const set = btn.dataset.kind==='persona'?filterPersonas:filterFuentes;
+      const set = btn.dataset.kind==='persona'?filterPersonas:(btn.dataset.kind==='plataforma'?filterPlataformas:filterFuentes);
       if(set.has(btn.dataset.val)) set.delete(btn.dataset.val); else set.add(btn.dataset.val);
       render();
     });
   });
 }
-document.getElementById('filterResetBtn').addEventListener('click', ()=>{ filterPersonas.clear(); filterFuentes.clear(); render(); });
+document.getElementById('filterResetBtn').addEventListener('click', ()=>{ filterPersonas.clear(); filterFuentes.clear(); filterPlataformas.clear(); render(); });
 
 // ── Render principal ─────────────────────────────────────────────────────
 let catChart;
 function render(){
   renderFilters();
   const fullList = Object.values(submissions);
-  const list = fullList.filter(s => (filterPersonas.size===0||filterPersonas.has(s.persona)) && (filterFuentes.size===0||filterFuentes.has(s.fuente)));
+  const list = fullList.filter(s => (filterPersonas.size===0||filterPersonas.has(s.persona)) && (filterFuentes.size===0||filterFuentes.has(s.fuente)) && (filterPlataformas.size===0||filterPlataformas.has(platformOf(s.fuente))));
   const teamMetrics = document.getElementById('teamMetrics');
 
   const autoList = Object.values(automatizaciones).filter(a => filterPersonas.size===0||filterPersonas.has(a.persona));
@@ -1105,7 +1119,7 @@ function render(){
     ${dupWarnings.length>5?'<div>…y '+(dupWarnings.length-5)+' más.</div>':''}</div>` : '';
 
   const numPersonas = Object.keys(byPersonMap).length;
-  const filterNote = (filterPersonas.size>0||filterFuentes.size>0) ? ' (con el filtro aplicado)' : '';
+  const filterNote = (filterPersonas.size>0||filterFuentes.size>0||filterPlataformas.size>0) ? ' (con el filtro aplicado)' : '';
   const topCat = Object.entries(byCat).sort((a,b)=>b[1].capturadas-a[1].capturadas)[0];
   const autoNote = autoTotals.weeklyTotal>0 ? ` A eso se suman <b>${fmt(autoTotals.weeklyTotal)}h/semana</b> recurrentes de automatizaciones activas (${fmt(autoTotals.cumTotal)}h acumuladas).` : '';
   document.getElementById('execSummary').innerHTML =
