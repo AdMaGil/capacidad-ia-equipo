@@ -186,6 +186,21 @@
     <div id="execSummary" style="font-size:15px;color:var(--j-black);margin:0 0 14px;line-height:1.6"></div>
     <div class="grid-metrics" id="teamMetrics"></div>
     <p class="note" style="background:var(--j-grey-1);border-left:3px solid var(--j-blue);border-radius:0 8px 8px 0;padding:10px 14px;color:var(--j-black);font-size:12.5px">La capacidad potencial refleja el tiempo teóricamente liberado por la IA. La capacidad ajustada aplica correctores de confianza, calidad y reinversión para ofrecer una estimación más prudente. No equivale a ahorro económico ni a output adicional demostrado.</p>
+    <details style="margin-top:10px">
+      <summary style="font-size:12.5px">Leyenda — qué significa cada métrica</summary>
+      <div class="details-body">
+        <table>
+          <tbody>
+            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">Tareas registradas</td><td>Número de tareas subidas por el equipo en el periodo analizado.</td></tr>
+            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">Multiplicador</td><td>Cuántas veces más rápido se completa una tarea con IA que sin ella, en las tareas donde hubo asistencia (horas manuales ÷ horas con IA).</td></tr>
+            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">H potenciales</td><td><b>No</b> es el tiempo disponible de nadie. Es la diferencia entre lo que costaría cada tarea sin IA y lo que ha costado con IA (horas manuales − horas con IA), sumada en todas las tareas. Es el hueco teórico que abre la IA — antes de aplicar ningún descuento de prudencia.</td></tr>
+            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">H ajustadas</td><td><b>No</b> es el tiempo que ha llevado la tarea con IA (eso es un dato de entrada aparte, no se muestra aquí). Es la H potencial de cada tarea corregida por tres factores: confianza en la estimación, calidad real del resultado, y si ese tiempo liberado se reinvirtió en algo verificable. Siempre es menor que H potenciales.</td></tr>
+            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">Ajustada/sem (tareas)</td><td>H ajustadas totales del equipo dividido entre las semanas efectivamente trabajadas declaradas por cada persona. Es un ritmo, no un acumulado.</td></tr>
+            <tr><td style="white-space:nowrap;font-weight:600;vertical-align:top">+ Recurrente/sem</td><td>Bloque totalmente aparte (sección 7): tiempo que automatizaciones ya construidas siguen ahorrando cada semana, sin que nadie tenga que reportarlo. No se mezcla con el cálculo de tareas.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
   </section>
 
   <section>
