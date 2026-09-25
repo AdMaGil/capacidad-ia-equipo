@@ -213,7 +213,12 @@
   </section>
 
   <section>
-    <h2><span class="n">7</span>Automatizaciones activas (ahorro recurrente)</h2>
+    <h2><span class="n">7</span>Destino del ahorro</h2>
+    <div id="destinoTableWrap"></div>
+  </section>
+
+  <section>
+    <h2><span class="n">8</span>Automatizaciones activas (ahorro recurrente)</h2>
     <div class="card">
       <p style="margin:0 0 14px;font-size:13px;color:var(--j-grey-3)">Distinto de las tareas de arriba: aquí no se registra el esfuerzo de <em>construir</em> una automatización, sino el tiempo que sigue ahorrando <b>cada semana desde que está en marcha</b>, sin que nadie tenga que reportarlo.</p>
       <div class="row">
@@ -255,7 +260,7 @@
   </section>
 
   <section>
-    <h2><span class="n">8</span>Escenarios de ahorro potencial</h2>
+    <h2><span class="n">9</span>Escenarios de ahorro potencial</h2>
     <div class="card">
       <div class="preset-btns">
         <button class="secondary" data-preset="conservador">Conservador</button>
@@ -281,12 +286,12 @@
   </section>
 
   <section>
-    <h2><span class="n">9</span>Por persona</h2>
+    <h2><span class="n">10</span>Por persona</h2>
     <div id="personTableWrap"></div>
   </section>
 
   <section>
-    <h2><span class="n">10</span>Detalle de tareas por aportación</h2>
+    <h2><span class="n">11</span>Detalle de tareas por aportación</h2>
     <div id="submissionsWrap"></div>
   </section>
 
@@ -695,6 +700,38 @@ function deriveCapture(raw){
   return map.hasOwnProperty(c) ? map[c] : null;
 }
 
+// Destino del ahorro: derivado de capture_status (o capture_factor legacy) — nunca requiere un prompt nuevo.
+// Mapea a las 4 categorías estratégicas del War Room IA (margen/precio/capacidad de venta/reinversión),
+// agrupadas en 3 cubos según lo que realmente podemos distinguir con los datos ya capturados.
+function deriveDestino(t){
+  const cs = (t.capture_status||'').toLowerCase();
+  if(cs === 'verificada' || t.output_adicional_verificado) return 'reinvertido_verificado';
+  if(cs === 'utilizada_no_trazada') return 'margen_precio_no_trazado';
+  if(cs === 'potencial_sin_evidencia' || cs === 'limitada') return 'sin_decidir';
+  if(cs === 'sin_resultado') return 'sin_resultado';
+  // Legacy sin capture_status textual: usar el capture_factor numérico ya calculado (t.capture_factor)
+  const kf = t.capture_factor;
+  if(typeof kf === 'number'){
+    if(kf >= 0.9) return 'reinvertido_verificado';
+    if(kf >= 0.6) return 'margen_precio_no_trazado';
+    if(kf >= 0.2) return 'sin_decidir';
+    return 'sin_resultado';
+  }
+  return 'sin_decidir';
+}
+const DESTINO_LABELS = {
+  reinvertido_verificado: 'Capacidad de venta / reinversión (verificado)',
+  margen_precio_no_trazado: 'Margen o precio — uso confirmado, sin trazar',
+  sin_decidir: 'Sin decidir (potencial no capturado)',
+  sin_resultado: 'Sin resultado'
+};
+const DESTINO_COLORS = {
+  reinvertido_verificado: '#1baf7a',
+  margen_precio_no_trazado: '#2a78d6',
+  sin_decidir: '#c9a227',
+  sin_resultado: '#8b8b93'
+};
+
 function taskIdFor(raw, idx){
   const base = raw.work_item_key || raw.tarea || ('tarea-'+idx);
   return 'task_'+slug(base)+'-'+idx;
@@ -1081,7 +1118,7 @@ function render(){
   if(fullList.length===0){
     teamMetrics.innerHTML = '<div class="empty">Todavía no hay datos del equipo.</div>';
     document.getElementById('execSummary').innerHTML = '';
-    ['catTableWrap','personTableWrap','submissionsWrap'].forEach(id=>document.getElementById(id).innerHTML='');
+    ['catTableWrap','destinoTableWrap','personTableWrap','submissionsWrap'].forEach(id=>document.getElementById(id).innerHTML='');
     if(catChart) catChart.destroy();
     renderScenarios();
     return;
@@ -1089,14 +1126,14 @@ function render(){
   if(list.length===0){
     teamMetrics.innerHTML = '<div class="empty">Ningún dato coincide con el filtro actual.</div>';
     document.getElementById('execSummary').innerHTML = '';
-    ['catTableWrap','personTableWrap','submissionsWrap'].forEach(id=>document.getElementById(id).innerHTML='');
+    ['catTableWrap','destinoTableWrap','personTableWrap','submissionsWrap'].forEach(id=>document.getElementById(id).innerHTML='');
     if(catChart) catChart.destroy();
     renderScenarios();
     return;
   }
 
   let totalBrutas=0,totalCapturadas=0,totalTareas=0,sumManualAsist=0,sumIaAsist=0,weeklyBrutaSum=0,weeklyCapturadaSum=0;
-  const byCat={}, byPersonMap={}, dedupeMap={};
+  const byCat={}, byPersonMap={}, dedupeMap={}, byDestino={};
 
   list.forEach(sub=>{
     let subBrutas=0, subCapturadas=0;
@@ -1111,6 +1148,9 @@ function render(){
       const cat = t.categoria || 'Otro';
       if(!byCat[cat]) byCat[cat]={brutas:0,capturadas:0,valores:[]};
       byCat[cat].brutas += t.horas_brutas; byCat[cat].capturadas += t.horas_capturadas; byCat[cat].valores.push(t.horas_capturadas);
+      const dest = deriveDestino(t);
+      if(!byDestino[dest]) byDestino[dest] = 0;
+      byDestino[dest] += t.horas_capturadas;
     });
     totalBrutas+=subBrutas; totalCapturadas+=subCapturadas; totalTareas += (sub.tareas||[]).length;
     let weeks = sub.semanas_efectivamente_trabajadas || null;
@@ -1162,6 +1202,20 @@ function render(){
       {label:'Ahorro ponderado', data:catLabels.map(c=>+byCat[c].capturadas.toFixed(1)), backgroundColor:'#040066', borderRadius:4, maxBarThickness:22}]},
     options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{title:{display:true,text:'Horas'},grid:{color:'#e4e4e4'}},y:{grid:{display:false}}}}
   });
+
+  const destinoOrder = ['reinvertido_verificado','margen_precio_no_trazado','sin_decidir','sin_resultado'];
+  const totalDestino = Object.values(byDestino).reduce((s,v)=>s+v,0);
+  const destinoRows = destinoOrder.filter(k=>byDestino[k]).map(k=>`
+    <tr><td><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${DESTINO_COLORS[k]};margin-right:6px"></span>${DESTINO_LABELS[k]}</td>
+    <td style="text-align:right">${fmt(byDestino[k])}h</td>
+    <td style="text-align:right">${totalDestino>0?fmtPct(byDestino[k]/totalDestino):'—'}</td></tr>`).join('');
+  const pctDecidido = totalDestino>0 ? ((byDestino.reinvertido_verificado||0)+(byDestino.margen_precio_no_trazado||0))/totalDestino : 0;
+  document.getElementById('destinoTableWrap').innerHTML = `
+    <div class="card">
+      <p class="note" style="margin:0 0 12px">Derivado automáticamente de <code>capture_status</code> de cada tarea ya registrada — no requiere que nadie relance su prompt. Responde a la idea del War Room IA: "el tiempo ahorrado tiene distintos destinos; sin una decisión explícita, el destino por defecto lo elige el cliente".</p>
+      <table><thead><tr><th>Destino del ahorro ponderado</th><th style="text-align:right">Horas</th><th style="text-align:right">%</th></tr></thead><tbody>${destinoRows}</tbody></table>
+      <p class="note" style="margin-top:10px"><b>${fmtPct(pctDecidido)}</b> del ahorro ponderado tiene un destino con evidencia de uso (verificado o confirmado sin trazar) — el resto sigue siendo potencial sin capturar o sin resultado.</p>
+    </div>`;
 
   const byPerson = Object.values(byPersonMap).sort((a,b)=>b.capturadas-a.capturadas);
   document.getElementById('personTableWrap').innerHTML = `<div class="card"><table><thead><tr><th>Persona</th><th style="text-align:right">Tareas</th><th style="text-align:right">Ahorro bruto</th><th style="text-align:right">Ahorro ponderado</th><th style="text-align:right">Ahorro actual/sem</th></tr></thead><tbody>${
